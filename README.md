@@ -1,6 +1,6 @@
 # SnapBar
 
-A lightweight, native macOS text selection toolbar — like PopClip, but open source and built for macOS Tahoe.
+A lightweight, native macOS text selection toolbar — like ..., but open source and built for macOS Tahoe.
 
 Select any text, and SnapBar appears with quick actions: copy, search, transform, open links, and more. Extend it with simple YAML plugins.
 
