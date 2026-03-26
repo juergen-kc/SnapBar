@@ -1,0 +1,42 @@
+name: SnapBar
+options:
+  bundleIdPrefix: com.snapbar
+  deploymentTarget:
+    macOS: "26.0"
+  xcodeVersion: "26.4"
+  minimumXcodeGenVersion: "2.42.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "26.0"
+    PRODUCT_BUNDLE_IDENTIFIER: com.snapbar.app
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    INFOPLIST_FILE: Resources/Info.plist
+    CODE_SIGN_ENTITLEMENTS: Resources/SnapBar.entitlements
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_HARDENED_RUNTIME: false
+    PRODUCT_NAME: SnapBar
+
+targets:
+  SnapBar:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources
+        type: group
+      - path: Resources/Assets.xcassets
+        type: folder
+    settings:
+      base:
+        INFOPLIST_FILE: Resources/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Resources/SnapBar.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        LD_RUNPATH_SEARCH_PATHS:
+          - "@executable_path/../Frameworks"
+    info:
+      path: Resources/Info.plist
+      properties:
+        LSUIElement: true
+        NSAccessibilityUsageDescription: "SnapBar needs Accessibility access to detect text selection and read selected text in other applications."
