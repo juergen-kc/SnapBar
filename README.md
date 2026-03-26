@@ -9,11 +9,7 @@ Select any text, and SnapBar appears with quick actions: copy, search, transform
 ![License: MIT](https://img.shields.io/badge/License-MIT-green)
 
 <p align="center">
-  <a href="https://github.com/juergen-kc/SnapBar/releases/download/v1.0.0/SnapBar-Demo.mp4">
-    <img src="screenshots/toolbar.png" alt="Watch SnapBar demo" width="600">
-    <br>
-    <em>▶ Watch demo video</em>
-  </a>
+  <img src="screenshots/demo.gif" alt="SnapBar demo" width="600">
 </p>
 
 ## Features
