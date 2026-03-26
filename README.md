@@ -8,6 +8,10 @@ Select any text, and SnapBar appears with quick actions: copy, search, transform
 ![Swift 6](https://img.shields.io/badge/Swift-6-orange)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green)
 
+<p align="center">
+  <img src="screenshots/toolbar.png" alt="SnapBar toolbar" width="600">
+</p>
+
 ## Features
 
 - **Instant toolbar** — appears automatically when you select text in any app
