@@ -60,10 +60,8 @@ struct SearchAction: Action {
     func isApplicable(for selection: TextSelection) -> Bool { true }
 
     func execute(with selection: TextSelection) {
-        guard let encoded = selection.text.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              let url = URL(string: "https://www.google.com/search?q=\(encoded)")
-        else { return }
-
+        let engine = MainActor.assumeIsolated { AppState.shared?.searchEngine } ?? .google
+        guard let url = engine.searchURL(for: selection.text) else { return }
         NSWorkspace.shared.open(url)
     }
 }
@@ -108,6 +106,123 @@ struct OpenLinkAction: Action {
         }
 
         return nil
+    }
+}
+
+// MARK: - Paste as Plain Text
+
+struct PastePlainTextAction: Action {
+    let id = "pastePlainText"
+    let title = "Paste as Plain Text"
+    let icon = "doc.plaintext"
+
+    func isApplicable(for selection: TextSelection) -> Bool {
+        selection.isEditable && NSPasteboard.general.string(forType: .string) != nil
+    }
+
+    func execute(with selection: TextSelection) {
+        // Get the plain text from the clipboard
+        guard let plainText = NSPasteboard.general.string(forType: .string) else { return }
+
+        // Replace clipboard with plain text only (stripping rich formatting)
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(plainText, forType: .string)
+
+        // Paste it
+        simulateKeyPress(key: .v, modifiers: .maskCommand)
+    }
+}
+
+// MARK: - Spelling
+
+struct SpellingAction: Action {
+    let id = "spelling"
+    let title = "Spelling"
+    let icon = "textformat.abc"
+
+    func isApplicable(for selection: TextSelection) -> Bool {
+        guard selection.isEditable else { return false }
+        let trimmed = selection.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        // Only for single words or short text
+        guard !trimmed.isEmpty, trimmed.count < 100 else { return false }
+
+        let checker = NSSpellChecker.shared
+        let range = checker.checkSpelling(of: trimmed, startingAt: 0)
+        return range.location != NSNotFound
+    }
+
+    func execute(with selection: TextSelection) {
+        let trimmed = selection.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let checker = NSSpellChecker.shared
+        let range = checker.checkSpelling(of: trimmed, startingAt: 0)
+        guard range.location != NSNotFound else { return }
+
+        let misspelled = (trimmed as NSString).substring(with: range)
+        let guesses = checker.guesses(forWordRange: range, in: trimmed, language: nil, inSpellDocumentWithTag: 0) ?? []
+
+        if let firstGuess = guesses.first {
+            // Replace misspelled word with the top suggestion
+            let corrected = trimmed.replacingCharacters(
+                in: Range(range, in: trimmed)!,
+                with: firstGuess
+            )
+
+            // Save current clipboard, paste correction, restore
+            let previous = NSPasteboard.general.string(forType: .string)
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(corrected, forType: .string)
+            simulateKeyPress(key: .v, modifiers: .maskCommand)
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                if let prev = previous {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(prev, forType: .string)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Reveal in Finder
+
+struct RevealInFinderAction: Action {
+    let id = "revealInFinder"
+    let title = "Reveal in Finder"
+    let icon = "folder"
+
+    func isApplicable(for selection: TextSelection) -> Bool {
+        extractPath(from: selection.text) != nil
+    }
+
+    func execute(with selection: TextSelection) {
+        guard let path = extractPath(from: selection.text) else { return }
+        let url = URL(fileURLWithPath: path)
+
+        var isDir: ObjCBool = false
+        if FileManager.default.fileExists(atPath: path, isDirectory: &isDir) {
+            if isDir.boolValue {
+                NSWorkspace.shared.open(url)
+            } else {
+                NSWorkspace.shared.activateFileViewerSelecting([url])
+            }
+        }
+    }
+
+    private func extractPath(from text: String) -> String? {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.count < 1024 else { return nil }
+
+        // Expand ~ to home directory
+        let expanded: String
+        if trimmed.hasPrefix("~/") {
+            expanded = NSString(string: trimmed).expandingTildeInPath
+        } else if trimmed.hasPrefix("/") {
+            expanded = trimmed
+        } else {
+            return nil
+        }
+
+        return FileManager.default.fileExists(atPath: expanded) ? expanded : nil
     }
 }
 

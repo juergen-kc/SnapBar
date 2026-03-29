@@ -5,6 +5,8 @@ import ServiceManagement
 @MainActor
 @Observable
 final class AppState {
+    static weak var shared: AppState?
+
     // MARK: - General Settings
     var isEnabled: Bool {
         didSet { UserDefaults.standard.set(isEnabled, forKey: "isEnabled") }
@@ -42,6 +44,9 @@ final class AppState {
     var excludedApps: Set<String> {
         didSet { UserDefaults.standard.set(Array(excludedApps), forKey: "excludedApps") }
     }
+    var searchEngine: SearchEngine {
+        didSet { UserDefaults.standard.set(searchEngine.rawValue, forKey: "searchEngine") }
+    }
 
     // MARK: - Actions
     var enabledActions: [ActionConfig] {
@@ -60,6 +65,7 @@ final class AppState {
         self.toolbarPosition = ToolbarPosition(rawValue: defaults.string(forKey: "toolbarPosition") ?? "") ?? .above
         self.toolbarSize = ToolbarSize(rawValue: defaults.string(forKey: "toolbarSize") ?? "") ?? .medium
         self.excludedApps = Set(defaults.stringArray(forKey: "excludedApps") ?? [])
+        self.searchEngine = SearchEngine(rawValue: defaults.string(forKey: "searchEngine") ?? "") ?? .google
         self.enabledActions = Self.loadActions()
     }
 
@@ -112,6 +118,40 @@ enum ToolbarSize: String, CaseIterable {
     }
 }
 
+enum SearchEngine: String, CaseIterable {
+    case google
+    case duckduckgo
+    case bing
+    case ecosia
+    case brave
+    case startpage
+
+    var displayName: String {
+        switch self {
+        case .google: "Google"
+        case .duckduckgo: "DuckDuckGo"
+        case .bing: "Bing"
+        case .ecosia: "Ecosia"
+        case .brave: "Brave"
+        case .startpage: "Startpage"
+        }
+    }
+
+    func searchURL(for query: String) -> URL? {
+        guard let encoded = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return nil }
+        let template: String
+        switch self {
+        case .google: template = "https://www.google.com/search?q=\(encoded)"
+        case .duckduckgo: template = "https://duckduckgo.com/?q=\(encoded)"
+        case .bing: template = "https://www.bing.com/search?q=\(encoded)"
+        case .ecosia: template = "https://www.ecosia.org/search?q=\(encoded)"
+        case .brave: template = "https://search.brave.com/search?q=\(encoded)"
+        case .startpage: template = "https://www.startpage.com/do/search?q=\(encoded)"
+        }
+        return URL(string: template)
+    }
+}
+
 struct ActionConfig: Identifiable, Codable, Equatable {
     let id: String
     var isEnabled: Bool
@@ -121,9 +161,12 @@ struct ActionConfig: Identifiable, Codable, Equatable {
         ActionConfig(id: "copy", isEnabled: true, order: 0),
         ActionConfig(id: "cut", isEnabled: true, order: 1),
         ActionConfig(id: "paste", isEnabled: true, order: 2),
-        ActionConfig(id: "search", isEnabled: true, order: 3),
-        ActionConfig(id: "openLink", isEnabled: true, order: 4),
-        ActionConfig(id: "dictionary", isEnabled: true, order: 5),
+        ActionConfig(id: "pastePlainText", isEnabled: true, order: 3),
+        ActionConfig(id: "search", isEnabled: true, order: 4),
+        ActionConfig(id: "openLink", isEnabled: true, order: 5),
+        ActionConfig(id: "dictionary", isEnabled: true, order: 6),
+        ActionConfig(id: "spelling", isEnabled: true, order: 7),
+        ActionConfig(id: "revealInFinder", isEnabled: true, order: 8),
     ]
 }
 

@@ -18,9 +18,12 @@ enum ActionRegistry {
         CopyAction(),
         CutAction(),
         PasteAction(),
+        PastePlainTextAction(),
         SearchAction(),
         OpenLinkAction(),
         DictionaryAction(),
+        SpellingAction(),
+        RevealInFinderAction(),
     ]
 
     private(set) static var pluginActions: [PluginAction] = []

@@ -51,6 +51,12 @@ struct GeneralSettingsView: View {
                     Text("Medium").tag(ToolbarSize.medium)
                     Text("Large").tag(ToolbarSize.large)
                 }
+
+                Picker("Search engine", selection: $state.searchEngine) {
+                    ForEach(SearchEngine.allCases, id: \.self) { engine in
+                        Text(engine.displayName).tag(engine)
+                    }
+                }
             }
 
             Section("Excluded Apps") {

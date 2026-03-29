@@ -3,7 +3,11 @@ import SwiftUI
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    let appState = AppState()
+    let appState: AppState = {
+        let state = AppState()
+        AppState.shared = state
+        return state
+    }()
     private var selectionMonitor: SelectionMonitor?
     private var toolbarController: ToolbarController?
     private var pluginWatcher: PluginDirectoryWatcher?
