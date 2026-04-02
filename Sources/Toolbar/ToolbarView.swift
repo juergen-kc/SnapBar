@@ -135,13 +135,10 @@ struct ToolbarView: View {
         .help(action.title)
     }
 
-    @ViewBuilder
     private func groupButton(name: String, icon: String, actions: [any Action], index: Int) -> some View {
-        let isExpanded = expandedGroup == name
-
         Button {
             withAnimation(.snappy(duration: 0.2)) {
-                expandedGroup = isExpanded ? nil : name
+                expandedGroup = expandedGroup == name ? nil : name
             }
         } label: {
             focusHighlight(isFocused(index)) {
@@ -150,7 +147,7 @@ struct ToolbarView: View {
                         .font(.system(size: appState.toolbarSize.iconSize, weight: .medium))
                     Image(systemName: "chevron.down")
                         .font(.system(size: appState.toolbarSize.iconSize * 0.55, weight: .semibold))
-                        .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                        .rotationEffect(.degrees(expandedGroup == name ? 180 : 0))
                 }
                 .frame(height: appState.toolbarSize.buttonSize)
                 .padding(.horizontal, 6)

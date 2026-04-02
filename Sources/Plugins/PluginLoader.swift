@@ -100,8 +100,7 @@ enum PluginLoader {
 
         guard let name = dict["name"],
               let icon = dict["icon"],
-              let typeStr = dict["type"],
-              let type = PluginDefinition.PluginType(rawValue: typeStr) else {
+              let type = dict["type"].flatMap(PluginDefinition.PluginType.init(rawValue:)) else {
             return nil
         }
 
