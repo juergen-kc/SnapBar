@@ -39,8 +39,8 @@ enum AccessibilityHelper {
         }
 
         // Fallback: try the system-wide element directly (may differ from resolveTarget's result)
-        guard let systemFocused = axAttribute(AXUIElementCreateSystemWide(), kAXFocusedUIElementAttribute as CFString) else { return nil }
-        guard let fallback = axAttribute(systemFocused as! AXUIElement, kAXSelectedTextAttribute as CFString) as? String,
+        guard let systemFocused = axAttribute(AXUIElementCreateSystemWide(), kAXFocusedUIElementAttribute as CFString),
+              let fallback = axAttribute(systemFocused as! AXUIElement, kAXSelectedTextAttribute as CFString) as? String,
               !fallback.isEmpty else { return nil }
         return fallback
     }
