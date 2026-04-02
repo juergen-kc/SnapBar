@@ -26,16 +26,12 @@ enum ActionRegistry {
 
     private(set) static var pluginActions: [PluginAction] = []
 
-    static var allActions: [any Action] {
-        builtInActions + pluginActions
-    }
-
     static func reloadPlugins() {
         pluginActions = PluginLoader.loadAll().map { PluginAction(definition: $0) }
     }
 
     static func action(for id: String) -> (any Action)? {
-        allActions.first { $0.id == id }
+        (builtInActions + pluginActions).first { $0.id == id }
     }
 
     static func applicableActions(for selection: TextSelection, config: [ActionConfig]) -> [any Action] {
