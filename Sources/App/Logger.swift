@@ -1,10 +1,9 @@
 import os
 import Foundation
 
-let logger = Logger(subsystem: "com.snapbar.app", category: "SnapBar")
-
 /// Debug logger that writes to both os_log and ~/.snapbar/debug.log
 enum DebugLog {
+    private static let logger = Logger(subsystem: "com.snapbar.app", category: "SnapBar")
     private nonisolated(unsafe) static let formatter = ISO8601DateFormatter()
 
     static let fileURL: URL = {

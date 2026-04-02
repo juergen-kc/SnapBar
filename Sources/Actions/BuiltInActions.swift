@@ -162,10 +162,10 @@ struct RevealInFinderAction: Action {
 
     func execute(with selection: TextSelection) {
         guard let path = extractPath(from: selection.text) else { return }
-        let url = URL(fileURLWithPath: path)
 
         var isDir: ObjCBool = false
         guard FileManager.default.fileExists(atPath: path, isDirectory: &isDir) else { return }
+        let url = URL(fileURLWithPath: path)
 
         if isDir.boolValue {
             NSWorkspace.shared.open(url)

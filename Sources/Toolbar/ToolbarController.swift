@@ -49,7 +49,7 @@ final class ToolbarController {
             selectionBounds: selection.bounds,
             toolbarSize: fittingSize,
             position: appState.toolbarPosition
-        ).origin)
+        ))
 
         panel.alphaValue = 0
         panel.orderFrontRegardless()
@@ -108,10 +108,10 @@ final class ToolbarController {
 
     // MARK: - Positioning
 
-    private func calculatePosition(selectionBounds: CGRect, toolbarSize: CGSize, position: ToolbarPosition) -> CGRect {
+    private func calculatePosition(selectionBounds: CGRect, toolbarSize: CGSize, position: ToolbarPosition) -> CGPoint {
         // Find the screen containing the selection point
         guard let screen = screenContaining(axPoint: selectionBounds.origin) ?? NSScreen.main ?? NSScreen.screens.first else {
-            return CGRect(origin: selectionBounds.origin, size: toolbarSize)
+            return selectionBounds.origin
         }
 
         let screenFrame = screen.visibleFrame
@@ -129,7 +129,7 @@ final class ToolbarController {
         x = max(screenFrame.minX + 4, min(x, screenFrame.maxX - toolbarSize.width - 4))
         y = max(screenFrame.minY + 4, min(y, screenFrame.maxY - toolbarSize.height - 4))
 
-        return CGRect(origin: CGPoint(x: x, y: y), size: toolbarSize)
+        return CGPoint(x: x, y: y)
     }
 
     /// Find the screen that contains a point in AX coordinate space (top-left origin)
