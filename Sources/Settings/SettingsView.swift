@@ -255,6 +255,7 @@ struct PluginsSettingsView: View {
                                     snippetHelpRow("key_combo", "Simulate a keystroke.\n  `key_combo: cmd+shift+k`")
                                     snippetHelpRow("script", "Run a shell script. Text via `$SNAPBAR_TEXT`.\n  `script: echo $SNAPBAR_TEXT | tr a-z A-Z`")
                                     snippetHelpRow("shortcut", "Run a macOS Shortcut.\n  `shortcut_name: My Shortcut`")
+                                    snippetHelpRow("javascript", "Run JavaScript. `input` = selected text.\n  `js: input.split('').reverse().join('')`")
                                     snippetHelpRow("service", "Invoke a macOS Service.\n  `service_name: Summarize`")
                                 }
                                 .font(.system(.caption, design: .monospaced))

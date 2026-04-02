@@ -1,5 +1,51 @@
 import SwiftUI
 
+/// Represents either a single action or a group of actions in the toolbar.
+enum ToolbarItem: Identifiable {
+    case single(any Action)
+    case group(name: String, icon: String, actions: [any Action])
+
+    var id: String {
+        switch self {
+        case .single(let action): action.id
+        case .group(let name, _, _): "group.\(name)"
+        }
+    }
+
+    /// Build toolbar items from a flat list of actions, grouping plugins that share a `group` field.
+    static func build(from actions: [any Action]) -> [ToolbarItem] {
+        var items: [ToolbarItem] = []
+        var groups: [String: (icon: String, actions: [any Action])] = [:]
+        var groupOrder: [String] = []
+
+        for action in actions {
+            if let plugin = action as? PluginAction, let groupName = plugin.definition.group {
+                if groups[groupName] == nil {
+                    groupOrder.append(groupName)
+                    groups[groupName] = (icon: plugin.icon, actions: [])
+                }
+                groups[groupName]!.actions.append(action)
+            } else {
+                items.append(.single(action))
+            }
+        }
+
+        // Append groups in order they first appeared
+        for name in groupOrder {
+            if let group = groups[name] {
+                if group.actions.count == 1 {
+                    // Don't group a single action
+                    items.append(.single(group.actions[0]))
+                } else {
+                    items.append(.group(name: name, icon: group.icon, actions: group.actions))
+                }
+            }
+        }
+
+        return items
+    }
+}
+
 /// The floating toolbar view using Liquid Glass design.
 struct ToolbarView: View {
     let actions: [any Action]
@@ -10,13 +56,24 @@ struct ToolbarView: View {
     @Namespace private var toolbarNamespace
     @Environment(AppState.self) private var appState
     @State private var focusedIndex: Int = 0
+    @State private var expandedGroup: String?
+
+    private var toolbarItems: [ToolbarItem] {
+        ToolbarItem.build(from: actions)
+    }
 
     var body: some View {
         GlassEffectContainer(spacing: 4) {
             HStack(spacing: 4) {
-                ForEach(Array(actions.enumerated()), id: \.element.id) { index, action in
-                    actionButton(for: action, index: index)
-                        .glassEffectID(action.id, in: toolbarNamespace)
+                ForEach(Array(toolbarItems.enumerated()), id: \.element.id) { index, item in
+                    switch item {
+                    case .single(let action):
+                        actionButton(for: action, index: index)
+                            .glassEffectID(action.id, in: toolbarNamespace)
+                    case .group(let name, let icon, let groupActions):
+                        groupButton(name: name, icon: icon, actions: groupActions, index: index)
+                            .glassEffectID("group.\(name)", in: toolbarNamespace)
+                    }
                 }
             }
             .padding(5)
@@ -30,21 +87,28 @@ struct ToolbarView: View {
         }
         .onKeyPress(.rightArrow) {
             guard keyboardMode else { return .ignored }
-            focusedIndex = min(actions.count - 1, focusedIndex + 1)
+            focusedIndex = min(toolbarItems.count - 1, focusedIndex + 1)
             return .handled
         }
         .onKeyPress(.return) {
-            guard keyboardMode, actions.indices.contains(focusedIndex) else { return .ignored }
-            actions[focusedIndex].execute(with: selection)
-            onDismiss()
+            guard keyboardMode, toolbarItems.indices.contains(focusedIndex) else { return .ignored }
+            if case .single(let action) = toolbarItems[focusedIndex] {
+                action.execute(with: selection)
+                onDismiss()
+            } else if case .group(let name, _, _) = toolbarItems[focusedIndex] {
+                expandedGroup = expandedGroup == name ? nil : name
+            }
             return .handled
         }
         .onKeyPress(.escape) {
+            if expandedGroup != nil {
+                expandedGroup = nil
+                return .handled
+            }
             onDismiss()
             return .handled
         }
         .onKeyPress(keys: []) { _ in
-            // Dismiss on any other keypress (non-keyboard-mode)
             if !keyboardMode {
                 onDismiss()
                 return .handled
@@ -78,5 +142,62 @@ struct ToolbarView: View {
         }
         .buttonStyle(.plain)
         .help(action.title)
+    }
+
+    @ViewBuilder
+    private func groupButton(name: String, icon: String, actions: [any Action], index: Int) -> some View {
+        let isFocused = keyboardMode && index == focusedIndex
+        let isExpanded = expandedGroup == name
+
+        Button {
+            withAnimation(.snappy(duration: 0.2)) {
+                expandedGroup = isExpanded ? nil : name
+            }
+        } label: {
+            HStack(spacing: 2) {
+                Image(systemName: icon)
+                    .font(.system(size: appState.toolbarSize.iconSize, weight: .medium))
+                Image(systemName: "chevron.down")
+                    .font(.system(size: appState.toolbarSize.iconSize * 0.55, weight: .semibold))
+                    .rotationEffect(.degrees(isExpanded ? 180 : 0))
+            }
+            .foregroundStyle(isFocused ? .white : .primary)
+            .frame(height: appState.toolbarSize.buttonSize)
+            .padding(.horizontal, 6)
+            .background {
+                if isFocused {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(.tint)
+                }
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(name)
+        .popover(isPresented: Binding(
+            get: { isExpanded },
+            set: { if !$0 { expandedGroup = nil } }
+        ), arrowEdge: .bottom) {
+            VStack(alignment: .leading, spacing: 2) {
+                ForEach(actions, id: \.id) { action in
+                    Button {
+                        action.execute(with: selection)
+                        expandedGroup = nil
+                        onDismiss()
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: action.icon)
+                                .frame(width: 20)
+                            Text(action.title)
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(6)
+        }
     }
 }

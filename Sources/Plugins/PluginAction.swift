@@ -1,4 +1,5 @@
 import AppKit
+import JavaScriptCore
 
 /// Wraps a PluginDefinition into an Action that the toolbar can display and execute.
 struct PluginAction: Action {
@@ -45,6 +46,8 @@ struct PluginAction: Action {
             executeCopyTransform(with: selection)
         case .service:
             executeService(with: selection)
+        case .javascript:
+            executeJavaScript(with: selection)
         }
     }
 
@@ -253,6 +256,48 @@ struct PluginAction: Action {
                 if let prev = previousClipboard {
                     NSPasteboard.general.clearContents()
                     NSPasteboard.general.setString(prev, forType: .string)
+                }
+            }
+        }
+    }
+
+    private func executeJavaScript(with selection: TextSelection) {
+        guard let code = definition.jsCode else {
+            DebugLog.log("JavaScript plugin '\(definition.name)' has no jsCode")
+            return
+        }
+
+        guard let context = JSContext() else {
+            DebugLog.log("Failed to create JSContext")
+            return
+        }
+
+        // Set up exception handler
+        context.exceptionHandler = { _, exception in
+            DebugLog.log("JS error in '\(self.definition.name)': \(exception?.toString() ?? "unknown")")
+        }
+
+        // Provide the selected text as `input`
+        context.setObject(selection.text, forKeyedSubscript: "input" as NSString)
+
+        // Evaluate the script
+        guard let result = context.evaluateScript(code) else { return }
+
+        // If the script returned a string, use it as the output
+        if !result.isUndefined, !result.isNull, let output = result.toString(), !output.isEmpty {
+            let previousClipboard = NSPasteboard.general.string(forType: .string)
+
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(output, forType: .string)
+
+            if selection.isEditable {
+                simulateKeyPress(key: .v, modifiers: .maskCommand)
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    if let prev = previousClipboard {
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString(prev, forType: .string)
+                    }
                 }
             }
         }

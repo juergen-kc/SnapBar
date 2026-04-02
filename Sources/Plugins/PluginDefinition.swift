@@ -21,6 +21,8 @@ struct PluginDefinition: Codable, Identifiable {
     var keyCombo: String?          // For .keyCombo type — e.g. "cmd+shift+k"
     var transform: TextTransform?  // For .copyTransform type
     var serviceName: String?       // For .service type — macOS Services menu name
+    var jsCode: String?            // For .javascript type — JavaScript source code
+    var group: String?             // Group name for submenu grouping
 
     var id: String { name }
 
@@ -31,6 +33,7 @@ struct PluginDefinition: Codable, Identifiable {
         case keyCombo = "key_combo"
         case copyTransform = "copy_transform"
         case service
+        case javascript
     }
 
     enum TextTransform: String, Codable {

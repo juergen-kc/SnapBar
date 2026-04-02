@@ -31,6 +31,7 @@ enum StarterPlugins {
         icon: textformat.size.larger
         type: copy_transform
         transform: uppercase
+        group: Text Case
         """),
 
         ("lowercase.yaml", """
@@ -38,6 +39,7 @@ enum StarterPlugins {
         icon: textformat.size.smaller
         type: copy_transform
         transform: lowercase
+        group: Text Case
         """),
 
         ("title-case.yaml", """
@@ -45,6 +47,7 @@ enum StarterPlugins {
         icon: textformat
         type: copy_transform
         transform: titlecase
+        group: Text Case
         """),
 
         ("word-count.yaml", """
@@ -90,6 +93,20 @@ enum StarterPlugins {
         icon: bold
         type: copy_transform
         transform: markdown_bold
+        """),
+
+        ("reverse-text.yaml", """
+        name: Reverse Text
+        icon: arrow.left.arrow.right
+        type: javascript
+        js: input.split('').reverse().join('')
+        """),
+
+        ("smart-quotes.yaml", """
+        name: Smart Quotes
+        icon: text.quote
+        type: javascript
+        js: input.replace(/"/g, '\\u201C').replace(/"/g, '\\u201D').replace(/'/g, '\\u2018').replace(/'/g, '\\u2019')
         """),
     ]
 }

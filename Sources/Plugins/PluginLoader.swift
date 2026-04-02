@@ -124,7 +124,9 @@ enum PluginLoader {
             shortcutName: dict["shortcut_name"] ?? dict["shortcut"],
             keyCombo: dict["key_combo"],
             transform: dict["transform"].flatMap(PluginDefinition.TextTransform.init(rawValue:)),
-            serviceName: dict["service_name"] ?? dict["service"]
+            serviceName: dict["service_name"] ?? dict["service"],
+            jsCode: dict["js_code"] ?? dict["javascript"] ?? dict["js"],
+            group: dict["group"]
         )
     }
 }
