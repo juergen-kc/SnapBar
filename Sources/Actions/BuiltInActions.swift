@@ -213,10 +213,10 @@ func simulateKeyPress(keyCode: CGKeyCode, modifiers: CGEventFlags) {
           let keyUp = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: false)
     else { return }
 
-    keyDown.flags = modifiers
-    keyUp.flags = modifiers
-    keyDown.post(tap: .cgAnnotatedSessionEventTap)
-    keyUp.post(tap: .cgAnnotatedSessionEventTap)
+    for event in [keyDown, keyUp] {
+        event.flags = modifiers
+        event.post(tap: .cgAnnotatedSessionEventTap)
+    }
 }
 
 let carbonKeyCodes: [String: CGKeyCode] = [

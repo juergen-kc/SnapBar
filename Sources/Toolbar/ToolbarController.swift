@@ -144,10 +144,9 @@ final class ToolbarController {
 
     private func installDismissMonitors() {
         dismissMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
-            guard let self, let panel = self.panel else { return }
-            if panel.contentView?.bounds.contains(panel.convertPoint(fromScreen: event.locationInWindow)) != true {
-                self.dismiss()
-            }
+            guard let self, let panel = self.panel,
+                  panel.contentView?.bounds.contains(panel.convertPoint(fromScreen: event.locationInWindow)) != true else { return }
+            self.dismiss()
         }
 
         scrollMonitor = NSEvent.addGlobalMonitorForEvents(matching: .scrollWheel) { [weak self] _ in
