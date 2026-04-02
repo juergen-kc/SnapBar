@@ -75,9 +75,8 @@ struct PluginAction: Action {
 
     private func executeURL(with selection: TextSelection) {
         guard let template = definition.url else { return }
-        guard let encoded = selection.text.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
-        let urlString = template.replacingOccurrences(of: "{text}", with: encoded)
-        guard let url = URL(string: urlString) else { return }
+        guard let encoded = selection.text.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+              let url = URL(string: template.replacingOccurrences(of: "{text}", with: encoded)) else { return }
         NSWorkspace.shared.open(url)
     }
 

@@ -157,9 +157,7 @@ final class ToolbarController {
     private func screenContaining(axPoint: NSPoint) -> NSScreen? {
         NSScreen.screens.first { screen in
             let frame = screen.frame
-            // Convert AX Y to AppKit Y for this screen
-            let appKitY = frame.origin.y + frame.height - axPoint.y
-            return frame.contains(NSPoint(x: axPoint.x, y: appKitY))
+            return frame.contains(NSPoint(x: axPoint.x, y: frame.origin.y + frame.height - axPoint.y))
         }
     }
 
