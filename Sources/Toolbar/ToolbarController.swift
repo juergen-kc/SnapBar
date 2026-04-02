@@ -137,8 +137,7 @@ final class ToolbarController {
 
     private func calculatePosition(selectionBounds: CGRect, toolbarSize: CGSize, position: ToolbarPosition) -> CGRect {
         // Find the screen containing the selection point
-        let selectionPoint = NSPoint(x: selectionBounds.origin.x, y: selectionBounds.origin.y)
-        let screen = screenContaining(axPoint: selectionPoint) ?? NSScreen.main ?? NSScreen.screens.first
+        let screen = screenContaining(axPoint: selectionBounds.origin) ?? NSScreen.main ?? NSScreen.screens.first
 
         guard let screen else {
             return CGRect(origin: selectionBounds.origin, size: toolbarSize)

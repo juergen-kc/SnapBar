@@ -12,16 +12,19 @@ enum AccessibilityHelper {
         AXIsProcessTrustedWithOptions(options)
     }
 
+    /// Read an accessibility attribute, returning nil on failure.
+    private static func axAttribute(_ element: AXUIElement, _ attribute: CFString) -> CFTypeRef? {
+        var value: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(element, attribute, &value) == .success else { return nil }
+        return value
+    }
+
     /// Get the currently focused UI element
     static func focusedElement() -> AXUIElement? {
         guard let app = NSWorkspace.shared.frontmostApplication else { return nil }
         let axApp = AXUIElementCreateApplication(app.processIdentifier)
-
-        var focusedElement: CFTypeRef?
-        let result = AXUIElementCopyAttributeValue(axApp, kAXFocusedUIElementAttribute as CFString, &focusedElement)
-        guard result == .success, let element = focusedElement else { return nil }
         // AXUIElement is a CFTypeRef — force cast is required for CF types
-        return (element as! AXUIElement)
+        return axAttribute(axApp, kAXFocusedUIElementAttribute as CFString) as! AXUIElement?
     }
 
     /// Resolve a target element: use the provided element, fall back to focused, then system-wide.
@@ -31,32 +34,22 @@ enum AccessibilityHelper {
 
         // Fallback: system-wide focused element
         let systemWide = AXUIElementCreateSystemWide()
-        var systemFocused: CFTypeRef?
-        guard AXUIElementCopyAttributeValue(systemWide, kAXFocusedUIElementAttribute as CFString, &systemFocused) == .success
-        else { return nil }
-        return (systemFocused as! AXUIElement)
+        return axAttribute(systemWide, kAXFocusedUIElementAttribute as CFString) as! AXUIElement?
     }
 
     /// Get the selected text from the focused element
     static func selectedText(from element: AXUIElement? = nil) -> String? {
         guard let target = resolveTarget(element) else { return nil }
 
-        var value: CFTypeRef?
-        let result = AXUIElementCopyAttributeValue(target, kAXSelectedTextAttribute as CFString, &value)
-
-        if result == .success, let text = value as? String, !text.isEmpty {
+        if let text = axAttribute(target, kAXSelectedTextAttribute as CFString) as? String, !text.isEmpty {
             return text
         }
 
         // Fallback: try the system-wide element directly (may differ from resolveTarget's result)
         let systemWide = AXUIElementCreateSystemWide()
-        var systemFocused: CFTypeRef?
-        guard AXUIElementCopyAttributeValue(systemWide, kAXFocusedUIElementAttribute as CFString, &systemFocused) == .success
-        else { return nil }
+        guard let systemFocused = axAttribute(systemWide, kAXFocusedUIElementAttribute as CFString) else { return nil }
 
-        var sysValue: CFTypeRef?
-        let sysResult = AXUIElementCopyAttributeValue(systemFocused as! AXUIElement, kAXSelectedTextAttribute as CFString, &sysValue)
-        if sysResult == .success, let text = sysValue as? String, !text.isEmpty {
+        if let text = axAttribute(systemFocused as! AXUIElement, kAXSelectedTextAttribute as CFString) as? String, !text.isEmpty {
             return text
         }
 
@@ -70,9 +63,9 @@ enum AccessibilityHelper {
     }
 
     private static func selectedTextBoundsFromElement(_ target: AXUIElement) -> CGRect? {
-        var rangeValue: CFTypeRef?
-        let rangeResult = AXUIElementCopyAttributeValue(target, kAXSelectedTextRangeAttribute as CFString, &rangeValue)
-        guard rangeResult == .success, let range = rangeValue else { return elementBounds(target) }
+        guard let range = axAttribute(target, kAXSelectedTextRangeAttribute as CFString) else {
+            return elementBounds(target)
+        }
 
         var boundsValue: CFTypeRef?
         let boundsResult = AXUIElementCopyParameterizedAttributeValue(
@@ -96,17 +89,13 @@ enum AccessibilityHelper {
     static func isEditable(element: AXUIElement? = nil) -> Bool {
         guard let target = resolveTarget(element) else { return false }
 
-        var role: CFTypeRef?
-        AXUIElementCopyAttributeValue(target, kAXRoleAttribute as CFString, &role)
-        let roleStr = role as? String ?? ""
+        let roleStr = axAttribute(target, kAXRoleAttribute as CFString) as? String ?? ""
 
         if roleStr == kAXTextFieldRole || roleStr == kAXTextAreaRole {
             return true
         }
 
-        var editable: CFTypeRef?
-        let result = AXUIElementCopyAttributeValue(target, "AXEditable" as CFString, &editable)
-        if result == .success, let isEditable = editable as? Bool {
+        if let isEditable = axAttribute(target, "AXEditable" as CFString) as? Bool {
             return isEditable
         }
 
@@ -120,11 +109,8 @@ enum AccessibilityHelper {
     }
 
     private static func elementBounds(_ element: AXUIElement) -> CGRect? {
-        var posValue: CFTypeRef?
-        var sizeValue: CFTypeRef?
-
-        guard AXUIElementCopyAttributeValue(element, kAXPositionAttribute as CFString, &posValue) == .success,
-              AXUIElementCopyAttributeValue(element, kAXSizeAttribute as CFString, &sizeValue) == .success
+        guard let posValue = axAttribute(element, kAXPositionAttribute as CFString),
+              let sizeValue = axAttribute(element, kAXSizeAttribute as CFString)
         else { return nil }
 
         var position = CGPoint.zero
