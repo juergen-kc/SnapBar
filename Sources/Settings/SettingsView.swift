@@ -72,7 +72,6 @@ struct GeneralSettingsView: View {
 
 struct ExcludedAppsView: View {
     @Environment(AppState.self) private var appState
-    @State private var showingAppPicker = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
