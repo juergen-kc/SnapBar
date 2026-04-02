@@ -91,11 +91,10 @@ struct PluginAction: Action {
         env["SNAPBAR_TEXT"] = selection.text
 
         Task.detached {
-            let output = runProcess(
+            if let output = runProcess(
                 executable: interpreter, arguments: arguments,
                 input: selection.text, environment: env, captureOutput: true
-            )
-            if let output, !output.isEmpty {
+            ), !output.isEmpty {
                 await MainActor.run { copyToClipboard(output) }
             }
         }

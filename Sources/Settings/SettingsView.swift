@@ -100,9 +100,7 @@ struct ExcludedAppsView: View {
                 }
             }
 
-            Button("Add App...") {
-                addRunningApp()
-            }
+            Button("Add App...", action: addRunningApp)
         }
     }
 
@@ -269,9 +267,7 @@ struct PluginsSettingsView: View {
                     }
 
                     HStack {
-                        Button("Install Snippet") {
-                            installSnippet()
-                        }
+                        Button("Install Snippet", action: installSnippet)
                         .disabled(snippetText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
                         statusLabel(snippetError, color: .red)

@@ -29,12 +29,8 @@ enum AccessibilityHelper {
 
     /// Resolve a target element: use the provided element, fall back to focused, then system-wide.
     private static func resolveTarget(_ element: AXUIElement? = nil) -> AXUIElement? {
-        if let element { return element }
-        if let focused = focusedElement() { return focused }
-
-        // Fallback: system-wide focused element
-        let systemWide = AXUIElementCreateSystemWide()
-        return axAttribute(systemWide, kAXFocusedUIElementAttribute as CFString) as! AXUIElement?
+        element ?? focusedElement()
+            ?? axAttribute(AXUIElementCreateSystemWide(), kAXFocusedUIElementAttribute as CFString) as! AXUIElement?
     }
 
     /// Get the selected text from the focused element
