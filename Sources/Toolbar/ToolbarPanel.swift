@@ -1,5 +1,4 @@
 import AppKit
-import SwiftUI
 
 /// A borderless, floating NSPanel that hosts the SnapBar toolbar.
 /// Stays above all windows, doesn't steal focus, and dismisses on outside interaction.

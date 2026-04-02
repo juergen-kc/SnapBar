@@ -29,9 +29,6 @@ final class ToolbarController {
 
         dismiss()
 
-        appState.currentSelection = selection
-        appState.isToolbarVisible = true
-
         let panel = ToolbarPanel()
         self.panel = panel
 
@@ -69,15 +66,6 @@ final class ToolbarController {
         installDismissMonitors()
     }
 
-    /// Show toolbar for long-press (no text selected — shows paste-only actions at cursor location)
-    func showForLongPress(at point: CGPoint) {
-        show(for: TextSelection(
-            text: AccessibilityHelper.selectedText() ?? "",
-            bounds: CGRect(origin: point, size: .zero),
-            isEditable: AccessibilityHelper.isEditable()
-        ))
-    }
-
     /// Summon toolbar via keyboard shortcut on current selection
     func summonViaKeyboard() {
         guard let text = AccessibilityHelper.selectedText(), !text.isEmpty else { return }
@@ -90,9 +78,6 @@ final class ToolbarController {
 
     func dismiss() {
         guard let panel else { return }
-
-        appState.isToolbarVisible = false
-        appState.currentSelection = nil
 
         removeDismissMonitors()
 
@@ -160,9 +145,8 @@ final class ToolbarController {
     private func installDismissMonitors() {
         dismissMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
             guard let self, let panel = self.panel else { return }
-            guard panel.contentView?.bounds.contains(panel.convertPoint(fromScreen: event.locationInWindow)) == true else {
+            if panel.contentView?.bounds.contains(panel.convertPoint(fromScreen: event.locationInWindow)) != true {
                 self.dismiss()
-                return
             }
         }
 

@@ -1,5 +1,4 @@
 import SwiftUI
-import Observation
 import ServiceManagement
 
 @MainActor
@@ -52,10 +51,6 @@ final class AppState {
     var enabledActions: [ActionConfig] {
         didSet { saveActions() }
     }
-
-    // MARK: - Runtime State (not persisted)
-    var currentSelection: TextSelection?
-    var isToolbarVisible = false
 
     init() {
         let defaults = UserDefaults.standard

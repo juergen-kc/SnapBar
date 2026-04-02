@@ -8,7 +8,6 @@ final class SelectionMonitor: @unchecked Sendable {
 
     private var pollingTimer: Timer?
     private var lastSelectedText = ""
-    private var lastMouseLocation: CGPoint = .zero
 
     init(appState: AppState, onSelection: @MainActor @escaping (TextSelection) -> Void) {
         self.appState = appState
@@ -38,10 +37,7 @@ final class SelectionMonitor: @unchecked Sendable {
         guard appState.appearAutomatically else { return }
 
         // Only check when mouse button is NOT pressed (selection just completed)
-        guard (NSEvent.pressedMouseButtons & 1) == 0 else {
-            lastMouseLocation = NSEvent.mouseLocation
-            return
-        }
+        guard (NSEvent.pressedMouseButtons & 1) == 0 else { return }
 
         // Check if there's selected text
         guard let text = AccessibilityHelper.selectedText(), !text.isEmpty else {
