@@ -48,12 +48,11 @@ final class ToolbarController {
         panel.contentView = hostingView
         panel.setContentSize(fittingSize)
 
-        let toolbarFrame = calculatePosition(
+        panel.setFrameOrigin(calculatePosition(
             selectionBounds: selection.bounds,
             toolbarSize: fittingSize,
             position: appState.toolbarPosition
-        )
-        panel.setFrameOrigin(toolbarFrame.origin)
+        ).origin)
 
         panel.alphaValue = 0
         panel.orderFrontRegardless()

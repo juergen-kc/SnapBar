@@ -49,8 +49,6 @@ enum ActionRegistry {
             .filter { $0.isApplicable(for: selection) }
 
         // Plugin actions (always appended after built-ins, filtered by their own context rules)
-        let plugins = pluginActions.filter { $0.isApplicable(for: selection) }
-
-        return builtIn + plugins
+        return builtIn + pluginActions.filter { $0.isApplicable(for: selection) }
     }
 }

@@ -84,14 +84,13 @@ struct PluginAction: Action {
         guard let script = definition.script else { return }
         let interpreter = definition.scriptInterpreter ?? "/bin/bash"
 
-        let arguments = interpreter.contains("osascript") ? ["-e", script] : ["-c", script]
-
         var env = ProcessInfo.processInfo.environment
         env["SNAPBAR_TEXT"] = selection.text
 
         Task.detached {
             if let output = runProcess(
-                executable: interpreter, arguments: arguments,
+                executable: interpreter,
+                arguments: interpreter.contains("osascript") ? ["-e", script] : ["-c", script],
                 input: selection.text, environment: env, captureOutput: true
             ), !output.isEmpty {
                 await MainActor.run { copyToClipboard(output) }

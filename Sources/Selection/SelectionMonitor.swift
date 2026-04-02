@@ -1,5 +1,4 @@
 import AppKit
-import ApplicationServices
 
 /// Monitors for text selection using Accessibility polling.
 @MainActor
