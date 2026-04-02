@@ -57,14 +57,9 @@ enum AccessibilityHelper {
         }
 
         var boundsValue: CFTypeRef?
-        let boundsResult = AXUIElementCopyParameterizedAttributeValue(
-            target,
-            kAXBoundsForRangeParameterizedAttribute as CFString,
-            range,
-            &boundsValue
-        )
-
-        if boundsResult == .success, let boundsRef = boundsValue {
+        if AXUIElementCopyParameterizedAttributeValue(
+            target, kAXBoundsForRangeParameterizedAttribute as CFString, range, &boundsValue
+        ) == .success, let boundsRef = boundsValue {
             var bounds = CGRect.zero
             // CF types require force cast — AXValueGetValue validates the type internally
             if AXValueGetValue(boundsRef as! AXValue, .cgRect, &bounds) {
