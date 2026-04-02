@@ -147,9 +147,7 @@ final class ToolbarController {
         let gap: CGFloat = 8
 
         // Convert AX coordinates (top-left origin) to AppKit screen coordinates (bottom-left origin)
-        let screenHeight = screen.frame.height
-        let screenOriginY = screen.frame.origin.y
-        let selectionScreenY = screenOriginY + screenHeight - selectionBounds.origin.y
+        let selectionScreenY = screen.frame.origin.y + screen.frame.height - selectionBounds.origin.y
 
         var x = selectionBounds.origin.x + (selectionBounds.width - toolbarSize.width) / 2
         var y: CGFloat

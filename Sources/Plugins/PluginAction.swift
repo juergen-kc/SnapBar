@@ -147,9 +147,7 @@ struct PluginAction: Action {
         case .titlecase:
             result = selection.text.capitalized
         case .capitalize:
-            let first = selection.text.prefix(1).uppercased()
-            let rest = selection.text.dropFirst()
-            result = first + rest
+            result = selection.text.prefix(1).uppercased() + selection.text.dropFirst()
         case .trimWhitespace:
             result = selection.text.trimmingCharacters(in: .whitespacesAndNewlines)
         case .base64Encode:

@@ -117,9 +117,13 @@ struct ToolbarView: View {
         }
     }
 
+    private func isFocused(_ index: Int) -> Bool {
+        keyboardMode && index == focusedIndex
+    }
+
     @ViewBuilder
     private func actionButton(for action: any Action, index: Int) -> some View {
-        let isFocused = keyboardMode && index == focusedIndex
+        let isFocused = isFocused(index)
 
         Button {
             action.execute(with: selection)
@@ -146,7 +150,7 @@ struct ToolbarView: View {
 
     @ViewBuilder
     private func groupButton(name: String, icon: String, actions: [any Action], index: Int) -> some View {
-        let isFocused = keyboardMode && index == focusedIndex
+        let isFocused = isFocused(index)
         let isExpanded = expandedGroup == name
 
         Button {

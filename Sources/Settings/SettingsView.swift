@@ -277,16 +277,8 @@ struct PluginsSettingsView: View {
                         }
                         .disabled(snippetText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
-                        if let error = snippetError {
-                            Text(error)
-                                .foregroundStyle(.red)
-                                .font(.caption)
-                        }
-                        if let success = snippetSuccess {
-                            Text(success)
-                                .foregroundStyle(.green)
-                                .font(.caption)
-                        }
+                        statusLabel(snippetError, color: .red)
+                        statusLabel(snippetSuccess, color: .green)
                     }
                 }
             }
@@ -295,6 +287,15 @@ struct PluginsSettingsView: View {
         .padding()
         .onAppear {
             plugins = PluginLoader.loadAll()
+        }
+    }
+
+    @ViewBuilder
+    private func statusLabel(_ message: String?, color: Color) -> some View {
+        if let message {
+            Text(message)
+                .foregroundStyle(color)
+                .font(.caption)
         }
     }
 
