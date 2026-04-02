@@ -10,8 +10,7 @@ struct CopyAction: Action {
     func isApplicable(for selection: TextSelection) -> Bool { true }
 
     func execute(with selection: TextSelection) {
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(selection.text, forType: .string)
+        copyToClipboard(selection.text)
     }
 }
 
@@ -27,8 +26,7 @@ struct CutAction: Action {
     }
 
     func execute(with selection: TextSelection) {
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(selection.text, forType: .string)
+        copyToClipboard(selection.text)
         // Simulate ⌘X via key event to let the app handle deletion
         simulateKeyPress(keyCode: carbonKeyCode(for: "x")!, modifiers: .maskCommand)
     }
@@ -268,21 +266,25 @@ private let carbonKeyCodes: [String: CGKeyCode] = [
     "f7": 98, "f8": 100, "f9": 101, "f10": 109, "f11": 103, "f12": 111,
 ]
 
+/// Copy text to the system clipboard.
+func copyToClipboard(_ text: String) {
+    NSPasteboard.general.clearContents()
+    NSPasteboard.general.setString(text, forType: .string)
+}
+
 /// Paste text into the focused field, restoring the previous clipboard after a short delay.
 /// If the selection is not editable, just copies the text to the clipboard.
 func pasteReplacingSelection(_ text: String, isEditable: Bool) {
     let previousClipboard = NSPasteboard.general.string(forType: .string)
 
-    NSPasteboard.general.clearContents()
-    NSPasteboard.general.setString(text, forType: .string)
+    copyToClipboard(text)
 
     if isEditable {
         simulateKeyPress(keyCode: carbonKeyCodes["v"]!, modifiers: .maskCommand)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             if let prev = previousClipboard {
-                NSPasteboard.general.clearContents()
-                NSPasteboard.general.setString(prev, forType: .string)
+                copyToClipboard(prev)
             }
         }
     }

@@ -137,18 +137,20 @@ enum SearchEngine: String, CaseIterable {
         }
     }
 
+    private var searchBaseURL: String {
+        switch self {
+        case .google: "https://www.google.com/search?q="
+        case .duckduckgo: "https://duckduckgo.com/?q="
+        case .bing: "https://www.bing.com/search?q="
+        case .ecosia: "https://www.ecosia.org/search?q="
+        case .brave: "https://search.brave.com/search?q="
+        case .startpage: "https://www.startpage.com/do/search?q="
+        }
+    }
+
     func searchURL(for query: String) -> URL? {
         guard let encoded = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return nil }
-        let template: String
-        switch self {
-        case .google: template = "https://www.google.com/search?q=\(encoded)"
-        case .duckduckgo: template = "https://duckduckgo.com/?q=\(encoded)"
-        case .bing: template = "https://www.bing.com/search?q=\(encoded)"
-        case .ecosia: template = "https://www.ecosia.org/search?q=\(encoded)"
-        case .brave: template = "https://search.brave.com/search?q=\(encoded)"
-        case .startpage: template = "https://www.startpage.com/do/search?q=\(encoded)"
-        }
-        return URL(string: template)
+        return URL(string: searchBaseURL + encoded)
     }
 }
 
@@ -175,6 +177,14 @@ struct TextSelection: Equatable {
     let bounds: CGRect  // Screen coordinates of the selection
     let isEditable: Bool
     let bundleIdentifier: String?
+
+    /// Create a selection, defaulting bundleIdentifier to the frontmost app.
+    init(text: String, bounds: CGRect, isEditable: Bool, bundleIdentifier: String? = NSWorkspace.shared.frontmostApplication?.bundleIdentifier) {
+        self.text = text
+        self.bounds = bounds
+        self.isEditable = isEditable
+        self.bundleIdentifier = bundleIdentifier
+    }
 
     /// Whether the selection contains meaningful (non-whitespace) content
     var hasContent: Bool {

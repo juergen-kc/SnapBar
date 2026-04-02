@@ -68,20 +68,12 @@ final class SelectionMonitor: @unchecked Sendable {
         DebugLog.log("Selection detected: '\(cappedText.prefix(40))'")
 
         // Get bounds and context — use screen-aware mouse fallback
-        let mouseAXPoint: CGPoint = {
-            let screenHeight = NSScreen.main?.frame.height ?? NSScreen.screens.first?.frame.height ?? 900
-            return CGPoint(x: currentMouse.x, y: screenHeight - currentMouse.y)
-        }()
-
-        let bounds = AccessibilityHelper.selectedTextBounds() ?? CGRect(origin: mouseAXPoint, size: .zero)
-        let isEditable = AccessibilityHelper.isEditable()
-        let bundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
-
+        let bounds = AccessibilityHelper.selectedTextBounds()
+            ?? CGRect(origin: AccessibilityHelper.axPoint(from: currentMouse), size: .zero)
         let selection = TextSelection(
             text: cappedText,
             bounds: bounds,
-            isEditable: isEditable,
-            bundleIdentifier: bundleID
+            isEditable: AccessibilityHelper.isEditable()
         )
 
         onSelection(selection)

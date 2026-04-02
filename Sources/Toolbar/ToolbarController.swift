@@ -81,8 +81,7 @@ final class ToolbarController {
         let selection = TextSelection(
             text: text,
             bounds: CGRect(origin: point, size: .zero),
-            isEditable: isEditable,
-            bundleIdentifier: NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+            isEditable: isEditable
         )
 
         show(for: selection)
@@ -92,21 +91,13 @@ final class ToolbarController {
     func summonViaKeyboard() {
         guard let text = AccessibilityHelper.selectedText(), !text.isEmpty else { return }
 
-        let bounds = AccessibilityHelper.selectedTextBounds() ?? {
-            // Fallback: use mouse location
-            let mouseLocation = NSEvent.mouseLocation
-            let screenHeight = NSScreen.main?.frame.height ?? NSScreen.screens.first?.frame.height ?? 900
-            return CGRect(
-                origin: CGPoint(x: mouseLocation.x, y: screenHeight - mouseLocation.y),
-                size: .zero
-            )
-        }()
+        let bounds = AccessibilityHelper.selectedTextBounds()
+            ?? CGRect(origin: AccessibilityHelper.axPoint(from: NSEvent.mouseLocation), size: .zero)
 
         let selection = TextSelection(
             text: text,
             bounds: bounds,
-            isEditable: AccessibilityHelper.isEditable(),
-            bundleIdentifier: NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+            isEditable: AccessibilityHelper.isEditable()
         )
 
         show(for: selection, keyboardMode: true)

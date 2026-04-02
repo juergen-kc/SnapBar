@@ -120,8 +120,7 @@ struct PluginAction: Action {
             if let output = String(data: outputData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines),
                !output.isEmpty {
                 await MainActor.run {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(output, forType: .string)
+                    copyToClipboard(output)
                 }
             }
         }
