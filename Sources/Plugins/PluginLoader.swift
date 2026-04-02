@@ -75,7 +75,7 @@ enum PluginLoader {
 
             // Array item
             if trimmed.hasPrefix("- "), let key = currentArrayKey {
-                let value = String(trimmed.dropFirst(2)).trimmingCharacters(in: .whitespaces)
+                let value = trimmed.dropFirst(2).trimmingCharacters(in: .whitespaces)
                 arrayValues[key, default: []].append(value)
                 continue
             }
@@ -84,8 +84,8 @@ enum PluginLoader {
 
             // Key-value pair
             if let colonIndex = trimmed.firstIndex(of: ":") {
-                let key = String(trimmed[..<colonIndex]).trimmingCharacters(in: .whitespaces)
-                let value = String(trimmed[trimmed.index(after: colonIndex)...]).trimmingCharacters(in: .whitespaces)
+                let key = trimmed[..<colonIndex].trimmingCharacters(in: .whitespaces)
+                let value = trimmed[trimmed.index(after: colonIndex)...].trimmingCharacters(in: .whitespaces)
 
                 if value.isEmpty {
                     // Next lines might be array items
