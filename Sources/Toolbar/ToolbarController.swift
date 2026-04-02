@@ -167,16 +167,12 @@ final class ToolbarController {
 
     /// Find the screen that contains a point in AX coordinate space (top-left origin)
     private func screenContaining(axPoint: NSPoint) -> NSScreen? {
-        for screen in NSScreen.screens {
+        NSScreen.screens.first { screen in
             let frame = screen.frame
             // Convert AX Y to AppKit Y for this screen
             let appKitY = frame.origin.y + frame.height - axPoint.y
-            let appKitPoint = NSPoint(x: axPoint.x, y: appKitY)
-            if frame.contains(appKitPoint) {
-                return screen
-            }
+            return frame.contains(NSPoint(x: axPoint.x, y: appKitY))
         }
-        return nil
     }
 
     // MARK: - Dismiss Monitors

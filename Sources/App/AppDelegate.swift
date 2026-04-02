@@ -61,12 +61,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     guard let self else { return }
                     let trusted = AccessibilityHelper.isTrusted()
                     DebugLog.log("Accessibility poll: trusted=\(trusted)")
-                    if trusted {
-                        DebugLog.log("Accessibility: GRANTED (after wait). Starting monitor.")
-                        self.accessibilityCheckTimer?.invalidate()
-                        self.accessibilityCheckTimer = nil
-                        self.selectionMonitor?.start()
-                    }
+                    guard trusted else { return }
+                    DebugLog.log("Accessibility: GRANTED (after wait). Starting monitor.")
+                    self.accessibilityCheckTimer?.invalidate()
+                    self.accessibilityCheckTimer = nil
+                    self.selectionMonitor?.start()
                 }
             }
         }

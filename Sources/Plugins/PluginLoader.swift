@@ -21,9 +21,7 @@ enum PluginLoader {
             includingPropertiesForKeys: nil
         ) else { return [] }
 
-        let pluginFiles = files.filter { isPluginFile($0.pathExtension) }
-
-        return pluginFiles.compactMap { loadPlugin(from: $0) }
+        return files.filter { isPluginFile($0.pathExtension) }.compactMap { loadPlugin(from: $0) }
     }
 
     /// Load a single plugin file

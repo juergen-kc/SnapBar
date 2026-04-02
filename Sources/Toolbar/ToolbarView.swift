@@ -32,13 +32,11 @@ enum ToolbarItem: Identifiable {
 
         // Append groups in order they first appeared
         for name in groupOrder {
-            if let group = groups[name] {
-                if group.actions.count == 1 {
-                    // Don't group a single action
-                    items.append(.single(group.actions[0]))
-                } else {
-                    items.append(.group(name: name, icon: group.icon, actions: group.actions))
-                }
+            guard let group = groups[name] else { continue }
+            if group.actions.count == 1 {
+                items.append(.single(group.actions[0]))
+            } else {
+                items.append(.group(name: name, icon: group.icon, actions: group.actions))
             }
         }
 
@@ -92,10 +90,11 @@ struct ToolbarView: View {
         }
         .onKeyPress(.return) {
             guard keyboardMode, toolbarItems.indices.contains(focusedIndex) else { return .ignored }
-            if case .single(let action) = toolbarItems[focusedIndex] {
+            switch toolbarItems[focusedIndex] {
+            case .single(let action):
                 action.execute(with: selection)
                 onDismiss()
-            } else if case .group(let name, _, _) = toolbarItems[focusedIndex] {
+            case .group(let name, _, _):
                 expandedGroup = expandedGroup == name ? nil : name
             }
             return .handled
