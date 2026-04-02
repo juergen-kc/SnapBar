@@ -95,11 +95,7 @@ enum AccessibilityHelper {
             return true
         }
 
-        if let isEditable = axAttribute(target, "AXEditable" as CFString) as? Bool {
-            return isEditable
-        }
-
-        return false
+        return axAttribute(target, "AXEditable" as CFString) as? Bool ?? false
     }
 
     /// Convert an AppKit screen point (bottom-left origin) to AX coordinates (top-left origin).

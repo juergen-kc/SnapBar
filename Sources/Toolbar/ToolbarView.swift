@@ -20,11 +20,8 @@ enum ToolbarItem: Identifiable {
 
         for action in actions {
             if let plugin = action as? PluginAction, let groupName = plugin.definition.group {
-                if groups[groupName] == nil {
-                    groupOrder.append(groupName)
-                    groups[groupName] = (icon: plugin.icon, actions: [])
-                }
-                groups[groupName]!.actions.append(action)
+                if groups[groupName] == nil { groupOrder.append(groupName) }
+                groups[groupName, default: (icon: plugin.icon, actions: [])].actions.append(action)
             } else {
                 items.append(.single(action))
             }

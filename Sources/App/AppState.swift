@@ -160,16 +160,9 @@ struct ActionConfig: Identifiable, Codable, Equatable {
     var order: Int
 
     static let defaults: [ActionConfig] = [
-        ActionConfig(id: "copy", isEnabled: true, order: 0),
-        ActionConfig(id: "cut", isEnabled: true, order: 1),
-        ActionConfig(id: "paste", isEnabled: true, order: 2),
-        ActionConfig(id: "pastePlainText", isEnabled: true, order: 3),
-        ActionConfig(id: "search", isEnabled: true, order: 4),
-        ActionConfig(id: "openLink", isEnabled: true, order: 5),
-        ActionConfig(id: "dictionary", isEnabled: true, order: 6),
-        ActionConfig(id: "spelling", isEnabled: true, order: 7),
-        ActionConfig(id: "revealInFinder", isEnabled: true, order: 8),
-    ]
+        "copy", "cut", "paste", "pastePlainText", "search",
+        "openLink", "dictionary", "spelling", "revealInFinder",
+    ].enumerated().map { ActionConfig(id: $1, isEnabled: true, order: $0) }
 }
 
 struct TextSelection: Equatable {

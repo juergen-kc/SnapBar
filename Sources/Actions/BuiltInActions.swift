@@ -150,8 +150,7 @@ struct SpellingAction: Action {
         let range = checker.checkSpelling(of: trimmed, startingAt: 0)
         guard range.location != NSNotFound else { return nil }
 
-        let guesses = checker.guesses(forWordRange: range, in: trimmed, language: nil, inSpellDocumentWithTag: 0) ?? []
-        guard let firstGuess = guesses.first else { return nil }
+        guard let firstGuess = checker.guesses(forWordRange: range, in: trimmed, language: nil, inSpellDocumentWithTag: 0)?.first else { return nil }
 
         return trimmed.replacingCharacters(in: Range(range, in: trimmed)!, with: firstGuess)
     }
@@ -173,12 +172,12 @@ struct RevealInFinderAction: Action {
         let url = URL(fileURLWithPath: path)
 
         var isDir: ObjCBool = false
-        if FileManager.default.fileExists(atPath: path, isDirectory: &isDir) {
-            if isDir.boolValue {
-                NSWorkspace.shared.open(url)
-            } else {
-                NSWorkspace.shared.activateFileViewerSelecting([url])
-            }
+        guard FileManager.default.fileExists(atPath: path, isDirectory: &isDir) else { return }
+
+        if isDir.boolValue {
+            NSWorkspace.shared.open(url)
+        } else {
+            NSWorkspace.shared.activateFileViewerSelecting([url])
         }
     }
 
@@ -257,8 +256,9 @@ private let carbonKeyCodes: [String: CGKeyCode] = [
 
 /// Copy text to the system clipboard.
 func copyToClipboard(_ text: String) {
-    NSPasteboard.general.clearContents()
-    NSPasteboard.general.setString(text, forType: .string)
+    let pb = NSPasteboard.general
+    pb.clearContents()
+    pb.setString(text, forType: .string)
 }
 
 /// Paste text into the focused field, restoring the previous clipboard after a short delay.
