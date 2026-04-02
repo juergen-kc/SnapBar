@@ -74,8 +74,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func windowDidClose(_ notification: Notification) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            let visibleWindows = NSApp.windows.filter { $0.isVisible && !($0 is ToolbarPanel) && $0.level == .normal }
-            if visibleWindows.isEmpty {
+            if !NSApp.windows.contains(where: { $0.isVisible && !($0 is ToolbarPanel) && $0.level == .normal }) {
                 NSApp.setActivationPolicy(.accessory)
             }
         }

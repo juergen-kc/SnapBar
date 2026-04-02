@@ -62,16 +62,15 @@ struct PluginAction: Action {
         pboard.clearContents()
         pboard.setString(selection.text, forType: .string)
 
-        let success = NSPerformService(serviceName, pboard)
-
-        if success {
-            if let result = pboard.string(forType: .string), result != selection.text {
-                pasteReplacingSelection(result, isEditable: selection.isEditable)
-            }
-            DebugLog.log("Service '\(serviceName)' executed successfully")
-        } else {
+        guard NSPerformService(serviceName, pboard) else {
             DebugLog.log("Service '\(serviceName)' failed or not found")
+            return
         }
+
+        if let result = pboard.string(forType: .string), result != selection.text {
+            pasteReplacingSelection(result, isEditable: selection.isEditable)
+        }
+        DebugLog.log("Service '\(serviceName)' executed successfully")
     }
 
     private func executeURL(with selection: TextSelection) {

@@ -81,7 +81,7 @@ struct ExcludedAppsView: View {
                     .foregroundStyle(.secondary)
                     .font(.callout)
             } else {
-                ForEach(Array(appState.excludedApps).sorted(), id: \.self) { bundleID in
+                ForEach(appState.excludedApps.sorted(), id: \.self) { bundleID in
                     HStack {
                         if let appName = appName(for: bundleID) {
                             Text(appName)
@@ -155,9 +155,8 @@ struct ActionsSettingsView: View {
                     }
                     .onMove { from, to in
                         appState.enabledActions.move(fromOffsets: from, toOffset: to)
-                        // Update order values
-                        for (index, _) in appState.enabledActions.enumerated() {
-                            appState.enabledActions[index].order = index
+                        for i in appState.enabledActions.indices {
+                            appState.enabledActions[i].order = i
                         }
                     }
                 }

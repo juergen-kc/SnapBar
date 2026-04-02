@@ -62,8 +62,7 @@ enum PluginLoader {
 
     /// Whether a file extension is a supported plugin format.
     static func isPluginFile(_ ext: String) -> Bool {
-        let lower = ext.lowercased()
-        return lower == "yaml" || lower == "yml" || lower == "json"
+        ["yaml", "yml", "json"].contains(ext.lowercased())
     }
 
     // MARK: - Simple YAML Parser
