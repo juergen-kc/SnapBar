@@ -33,8 +33,7 @@ enum ActionRegistry {
     }
 
     static func reloadPlugins() {
-        let definitions = PluginLoader.loadAll()
-        pluginActions = definitions.map { PluginAction(definition: $0) }
+        pluginActions = PluginLoader.loadAll().map { PluginAction(definition: $0) }
     }
 
     static func action(for id: String) -> (any Action)? {

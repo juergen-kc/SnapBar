@@ -99,11 +99,9 @@ struct ToolbarView: View {
             return .handled
         }
         .onKeyPress(keys: []) { _ in
-            if !keyboardMode {
-                onDismiss()
-                return .handled
-            }
-            return .ignored
+            guard !keyboardMode else { return .ignored }
+            onDismiss()
+            return .handled
         }
     }
 

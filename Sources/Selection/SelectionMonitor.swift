@@ -38,12 +38,9 @@ final class SelectionMonitor: @unchecked Sendable {
         // Skip if automatic appearance is disabled
         guard appState.appearAutomatically else { return }
 
-        // Track mouse position
-        let currentMouse = NSEvent.mouseLocation
-
         // Only check when mouse button is NOT pressed (selection just completed)
         guard (NSEvent.pressedMouseButtons & 1) == 0 else {
-            lastMouseLocation = currentMouse
+            lastMouseLocation = NSEvent.mouseLocation
             return
         }
 

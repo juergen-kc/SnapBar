@@ -22,13 +22,12 @@ enum DebugLog {
         guard let data = line.data(using: .utf8) else { return }
 
         if let handle = try? FileHandle(forWritingTo: fileURL) {
+            defer { handle.closeFile() }
             let size = handle.seekToEndOfFile()
             if size > maxLogSize {
-                handle.closeFile()
                 rotateLog()
             } else {
                 handle.write(data)
-                handle.closeFile()
                 return
             }
         }

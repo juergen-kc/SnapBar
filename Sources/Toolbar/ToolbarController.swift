@@ -73,31 +73,21 @@ final class ToolbarController {
 
     /// Show toolbar for long-press (no text selected — shows paste-only actions at cursor location)
     func showForLongPress(at point: CGPoint) {
-        let isEditable = AccessibilityHelper.isEditable()
-        let text = AccessibilityHelper.selectedText() ?? ""
-
-        let selection = TextSelection(
-            text: text,
+        show(for: TextSelection(
+            text: AccessibilityHelper.selectedText() ?? "",
             bounds: CGRect(origin: point, size: .zero),
-            isEditable: isEditable
-        )
-
-        show(for: selection)
+            isEditable: AccessibilityHelper.isEditable()
+        ))
     }
 
     /// Summon toolbar via keyboard shortcut on current selection
     func summonViaKeyboard() {
         guard let text = AccessibilityHelper.selectedText(), !text.isEmpty else { return }
-
-        let bounds = AccessibilityHelper.selectedTextBoundsOrMouse()
-
-        let selection = TextSelection(
+        show(for: TextSelection(
             text: text,
-            bounds: bounds,
+            bounds: AccessibilityHelper.selectedTextBoundsOrMouse(),
             isEditable: AccessibilityHelper.isEditable()
-        )
-
-        show(for: selection, keyboardMode: true)
+        ), keyboardMode: true)
     }
 
     func dismiss() {
