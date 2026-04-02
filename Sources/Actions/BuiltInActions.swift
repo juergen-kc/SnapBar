@@ -162,12 +162,9 @@ struct RevealInFinderAction: Action {
 
     func execute(with selection: TextSelection) {
         guard let path = extractPath(from: selection.text) else { return }
-
-        var isDir: ObjCBool = false
-        guard FileManager.default.fileExists(atPath: path, isDirectory: &isDir) else { return }
         let url = URL(fileURLWithPath: path)
 
-        if isDir.boolValue {
+        if url.hasDirectoryPath {
             NSWorkspace.shared.open(url)
         } else {
             NSWorkspace.shared.activateFileViewerSelecting([url])
