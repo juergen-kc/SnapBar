@@ -151,9 +151,7 @@ struct ActionsSettingsView: View {
                     }
                     .onMove { from, to in
                         appState.enabledActions.move(fromOffsets: from, toOffset: to)
-                        for i in appState.enabledActions.indices {
-                            appState.enabledActions[i].order = i
-                        }
+                        appState.enabledActions.indices.forEach { appState.enabledActions[$0].order = $0 }
                     }
                 }
                 .listStyle(.bordered)

@@ -42,8 +42,7 @@ enum PluginLoader {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmed.hasPrefix("#snapbar") else { return nil }
         // Remove the #snapbar marker and parse as YAML
-        let content = String(trimmed.dropFirst("#snapbar".count))
-        return parseYAML(content)
+        return parseYAML(String(trimmed.dropFirst("#snapbar".count)))
     }
 
     /// Install a plugin by writing it to the plugins directory
@@ -73,7 +72,7 @@ enum PluginLoader {
         var currentArrayKey: String?
         for line in content.components(separatedBy: .newlines) {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
-            if trimmed.isEmpty || trimmed.hasPrefix("#") { continue }
+            guard !trimmed.isEmpty, !trimmed.hasPrefix("#") else { continue }
 
             // Array item
             if trimmed.hasPrefix("- "), let key = currentArrayKey {

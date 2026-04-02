@@ -61,9 +61,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         accessibilityCheckTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 guard let self else { return }
-                let trusted = AccessibilityHelper.isTrusted()
-                DebugLog.log("Accessibility poll: trusted=\(trusted)")
-                guard trusted else { return }
+                guard AccessibilityHelper.isTrusted() else {
+                    DebugLog.log("Accessibility poll: not yet trusted")
+                    return
+                }
                 DebugLog.log("Accessibility: GRANTED (after wait). Starting monitor.")
                 self.accessibilityCheckTimer?.invalidate()
                 self.accessibilityCheckTimer = nil

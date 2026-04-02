@@ -146,11 +146,10 @@ struct SpellingAction: Action {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, trimmed.count < 100 else { return nil }
 
-        let checker = NSSpellChecker.shared
-        let range = checker.checkSpelling(of: trimmed, startingAt: 0)
+        let range = NSSpellChecker.shared.checkSpelling(of: trimmed, startingAt: 0)
         guard range.location != NSNotFound else { return nil }
 
-        guard let firstGuess = checker.guesses(forWordRange: range, in: trimmed, language: nil, inSpellDocumentWithTag: 0)?.first else { return nil }
+        guard let firstGuess = NSSpellChecker.shared.guesses(forWordRange: range, in: trimmed, language: nil, inSpellDocumentWithTag: 0)?.first else { return nil }
 
         return trimmed.replacingCharacters(in: Range(range, in: trimmed)!, with: firstGuess)
     }
