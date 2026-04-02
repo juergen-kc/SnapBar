@@ -15,9 +15,8 @@ enum DebugLog {
     private static let maxLogSize: UInt64 = 2 * 1024 * 1024  // 2 MB
 
     static func log(_ message: String) {
-        let line = "[\(formatter.string(from: Date()))] \(message)\n"
         logger.notice("\(message)")
-        guard let data = line.data(using: .utf8) else { return }
+        guard let data = "[\(formatter.string(from: Date()))] \(message)\n".data(using: .utf8) else { return }
 
         guard let handle = try? FileHandle(forWritingTo: fileURL) else {
             try? data.write(to: fileURL)
