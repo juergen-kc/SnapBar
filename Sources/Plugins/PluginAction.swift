@@ -175,8 +175,8 @@ struct PluginAction: Action {
         process.waitUntilExit()
 
         guard let outputPipe else { return nil }
-        let data = outputPipe.fileHandleForReading.readDataToEndOfFile()
-        return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        return String(data: outputPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private func executeJavaScript(with selection: TextSelection) {
