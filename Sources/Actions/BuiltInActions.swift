@@ -198,19 +198,17 @@ struct DictionaryAction: Action {
     let icon = "book"
 
     func isApplicable(for selection: TextSelection) -> Bool {
-        selection.hasContent && trimmed(selection).components(separatedBy: .whitespaces).count <= 3
+        selection.hasContent && selection.text.trimmingCharacters(in: .whitespacesAndNewlines)
+            .components(separatedBy: .whitespaces).count <= 3
     }
 
     func execute(with selection: TextSelection) {
         NSAppleScript(source: "tell application \"Dictionary\" to activate")?.executeAndReturnError(nil)
-        if let encoded = trimmed(selection).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+        if let encoded = selection.text.trimmingCharacters(in: .whitespacesAndNewlines)
+            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
            let url = URL(string: "dict://\(encoded)") {
             NSWorkspace.shared.open(url)
         }
-    }
-
-    private func trimmed(_ selection: TextSelection) -> String {
-        selection.text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 

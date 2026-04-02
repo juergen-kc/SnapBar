@@ -121,7 +121,7 @@ struct PluginAction: Action {
         guard let combo = definition.keyCombo else { return }
         let parts = combo.lowercased().components(separatedBy: "+").map { $0.trimmingCharacters(in: .whitespaces) }
 
-        let flags = parts.compactMap { Self.modifierMap[$0] }.reduce(CGEventFlags()) { $0.union($1) }
+        let flags = parts.compactMap { Self.modifierMap[$0] }.reduce(into: CGEventFlags()) { $0.formUnion($1) }
         guard let keyChar = parts.last(where: { Self.modifierMap[$0] == nil }),
               let code = carbonKeyCode(for: keyChar) else { return }
         simulateKeyPress(keyCode: code, modifiers: flags)

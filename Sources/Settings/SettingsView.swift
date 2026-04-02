@@ -139,13 +139,11 @@ struct ActionsSettingsView: View {
 
                 List {
                     ForEach($state.enabledActions) { $config in
-                        HStack {
-                            Toggle(isOn: $config.isEnabled) {
-                                if let action = ActionRegistry.action(for: config.id) {
-                                    Label(action.title, systemImage: action.icon)
-                                } else {
-                                    Text(config.id)
-                                }
+                        Toggle(isOn: $config.isEnabled) {
+                            if let action = ActionRegistry.action(for: config.id) {
+                                Label(action.title, systemImage: action.icon)
+                            } else {
+                                Text(config.id)
                             }
                         }
                     }

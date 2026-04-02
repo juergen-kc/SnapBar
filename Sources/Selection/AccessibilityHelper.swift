@@ -44,7 +44,7 @@ enum AccessibilityHelper {
         // Fallback: try the system-wide element directly (may differ from resolveTarget's result)
         guard let systemFocused = axAttribute(AXUIElementCreateSystemWide(), kAXFocusedUIElementAttribute as CFString) else { return nil }
         let fallback = axAttribute(systemFocused as! AXUIElement, kAXSelectedTextAttribute as CFString) as? String
-        return fallback?.isEmpty == false ? fallback : nil
+        return fallback.flatMap { $0.isEmpty ? nil : $0 }
     }
 
     /// Get the bounds of the selected text in screen coordinates
