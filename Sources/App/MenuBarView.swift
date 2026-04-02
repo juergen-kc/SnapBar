@@ -19,7 +19,7 @@ struct MenuBarView: View {
 
             // Go back to accessory (no Dock icon) once the settings window closes
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                if !NSApp.windows.contains(where: { $0.isVisible && !($0 is ToolbarPanel) }) {
+                if !NSApp.windows.contains(where: { $0.isVisible && $0.level == .normal }) {
                     NSApp.setActivationPolicy(.accessory)
                 }
             }
