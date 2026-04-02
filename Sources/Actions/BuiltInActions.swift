@@ -205,8 +205,7 @@ struct DictionaryAction: Action {
 
     func execute(with selection: TextSelection) {
         NSAppleScript(source: "tell application \"Dictionary\" to activate")?.executeAndReturnError(nil)
-        let word = trimmed(selection)
-        if let encoded = word.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+        if let encoded = trimmed(selection).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
            let url = URL(string: "dict://\(encoded)") {
             NSWorkspace.shared.open(url)
         }
@@ -267,9 +266,7 @@ func pasteReplacingSelection(_ text: String, isEditable: Bool) {
         simulateKeyPress(keyCode: carbonKeyCodes["v"]!, modifiers: .maskCommand)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            if let prev = previousClipboard {
-                copyToClipboard(prev)
-            }
+            previousClipboard.map(copyToClipboard)
         }
     }
 }

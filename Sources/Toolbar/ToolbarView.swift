@@ -28,8 +28,8 @@ enum ToolbarItem: Identifiable {
         }
 
         // Append groups in order they first appeared
-        items += groupOrder.compactMap { name -> ToolbarItem? in
-            guard let group = groups[name] else { return nil }
+        items += groupOrder.map { name in
+            let group = groups[name]!
             return group.actions.count == 1
                 ? .single(group.actions[0])
                 : .group(name: name, icon: group.icon, actions: group.actions)

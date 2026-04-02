@@ -113,9 +113,7 @@ struct ExcludedAppsView: View {
         panel.canChooseDirectories = false
         panel.allowsMultipleSelection = false
 
-        if panel.runModal() == .OK, let url = panel.url,
-           let bundle = Bundle(url: url),
-           let bundleID = bundle.bundleIdentifier {
+        if panel.runModal() == .OK, let bundleID = panel.url.flatMap(Bundle.init)?.bundleIdentifier {
             appState.excludedApps.insert(bundleID)
         }
     }
