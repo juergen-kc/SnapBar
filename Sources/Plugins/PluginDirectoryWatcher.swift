@@ -16,8 +16,7 @@ final class PluginDirectoryWatcher {
     }
 
     private func startWatching() {
-        let path = PluginLoader.pluginsDirectory.path
-        let fd = open(path, O_EVTONLY)
+        let fd = open(PluginLoader.pluginsDirectory.path, O_EVTONLY)
         guard fd >= 0 else { return }
 
         let source = DispatchSource.makeFileSystemObjectSource(

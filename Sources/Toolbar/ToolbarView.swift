@@ -166,7 +166,7 @@ struct ToolbarView: View {
         .help(name)
         .popover(isPresented: Binding(
             get: { isExpanded },
-            set: { if !$0 { expandedGroup = nil } }
+            set: { expandedGroup = $0 ? name : nil }
         ), arrowEdge: .bottom) {
             VStack(alignment: .leading, spacing: 2) {
                 ForEach(actions, id: \.id) { action in

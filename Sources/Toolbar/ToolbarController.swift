@@ -136,13 +136,9 @@ final class ToolbarController {
         let selectionScreenY = screen.frame.origin.y + screen.frame.height - selectionBounds.origin.y
 
         var x = selectionBounds.origin.x + (selectionBounds.width - toolbarSize.width) / 2
-        var y: CGFloat
-
-        switch position {
-        case .above:
-            y = selectionScreenY + gap
-        case .below:
-            y = selectionScreenY - selectionBounds.height - toolbarSize.height - gap
+        var y = switch position {
+        case .above: selectionScreenY + gap
+        case .below: selectionScreenY - selectionBounds.height - toolbarSize.height - gap
         }
 
         x = max(screenFrame.minX + 4, min(x, screenFrame.maxX - toolbarSize.width - 4))
