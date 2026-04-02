@@ -1,5 +1,3 @@
-import Foundation
-
 /// Represents a plugin loaded from YAML/JSON on disk.
 struct PluginDefinition: Codable, Identifiable {
     let name: String
