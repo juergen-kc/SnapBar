@@ -49,11 +49,11 @@ enum PluginLoader {
     /// Install a plugin by writing it to the plugins directory
     static func install(_ definition: PluginDefinition) throws {
         ensureDirectory()
-        let filename = definition.name
-            .lowercased()
-            .replacingOccurrences(of: " ", with: "-")
-            .filter { $0.isLetter || $0.isNumber || $0 == "-" }
-        let url = pluginsDirectory.appendingPathComponent("\(filename).json")
+        let url = pluginsDirectory.appendingPathComponent(
+            definition.name.lowercased()
+                .replacingOccurrences(of: " ", with: "-")
+                .filter { $0.isLetter || $0.isNumber || $0 == "-" } + ".json"
+        )
         let data = try JSONEncoder().encode(definition)
         try data.write(to: url)
     }

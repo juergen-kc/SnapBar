@@ -111,66 +111,45 @@ struct PluginAction: Action {
         }
     }
 
+    private static let modifierMap: [String: CGEventFlags] = [
+        "cmd": .maskCommand, "command": .maskCommand,
+        "shift": .maskShift,
+        "alt": .maskAlternate, "option": .maskAlternate, "opt": .maskAlternate,
+        "ctrl": .maskControl, "control": .maskControl,
+    ]
+
     private func executeKeyCombo() {
         guard let combo = definition.keyCombo else { return }
         let parts = combo.lowercased().components(separatedBy: "+").map { $0.trimmingCharacters(in: .whitespaces) }
 
-        var flags: CGEventFlags = []
-        var keyChar: String?
-
-        for part in parts {
-            switch part {
-            case "cmd", "command": flags.insert(.maskCommand)
-            case "shift": flags.insert(.maskShift)
-            case "alt", "option", "opt": flags.insert(.maskAlternate)
-            case "ctrl", "control": flags.insert(.maskControl)
-            default: keyChar = part
-            }
-        }
-
-        guard let char = keyChar, let code = carbonKeyCode(for: char) else { return }
+        let flags = parts.compactMap { Self.modifierMap[$0] }.reduce(CGEventFlags()) { $0.union($1) }
+        guard let keyChar = parts.last(where: { Self.modifierMap[$0] == nil }),
+              let code = carbonKeyCode(for: keyChar) else { return }
         simulateKeyPress(keyCode: code, modifiers: flags)
     }
 
     private func executeCopyTransform(with selection: TextSelection) {
         guard let transform = definition.transform else { return }
-        let result: String
+        let text = selection.text
 
-        switch transform {
-        case .uppercase:
-            result = selection.text.uppercased()
-        case .lowercase:
-            result = selection.text.lowercased()
-        case .titlecase:
-            result = selection.text.capitalized
-        case .capitalize:
-            result = selection.text.prefix(1).uppercased() + selection.text.dropFirst()
-        case .trimWhitespace:
-            result = selection.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        case .base64Encode:
-            result = Data(selection.text.utf8).base64EncodedString()
-        case .base64Decode:
-            result = Data(base64Encoded: selection.text).flatMap { String(data: $0, encoding: .utf8) } ?? selection.text
-        case .urlEncode:
-            result = selection.text.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? selection.text
-        case .urlDecode:
-            result = selection.text.removingPercentEncoding ?? selection.text
-        case .markdownBold:
-            result = "**\(selection.text)**"
-        case .markdownItalic:
-            result = "*\(selection.text)*"
-        case .markdownCode:
-            result = selection.text.contains("\n") ? "```\n\(selection.text)\n```" : "`\(selection.text)`"
-        case .countWords:
-            result = "\(selection.text.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }.count) words"
-        case .countCharacters:
-            result = "\(selection.text.count) characters"
-        case .sortLines:
-            result = selection.text.components(separatedBy: .newlines).sorted().joined(separator: "\n")
-        case .reverseLines:
-            result = selection.text.components(separatedBy: .newlines).reversed().joined(separator: "\n")
-        case .removeBlankLines:
-            result = selection.text.components(separatedBy: .newlines).filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.joined(separator: "\n")
+        let result = switch transform {
+        case .uppercase: text.uppercased()
+        case .lowercase: text.lowercased()
+        case .titlecase: text.capitalized
+        case .capitalize: text.prefix(1).uppercased() + text.dropFirst()
+        case .trimWhitespace: text.trimmingCharacters(in: .whitespacesAndNewlines)
+        case .base64Encode: Data(text.utf8).base64EncodedString()
+        case .base64Decode: Data(base64Encoded: text).flatMap { String(data: $0, encoding: .utf8) } ?? text
+        case .urlEncode: text.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? text
+        case .urlDecode: text.removingPercentEncoding ?? text
+        case .markdownBold: "**\(text)**"
+        case .markdownItalic: "*\(text)*"
+        case .markdownCode: text.contains("\n") ? "```\n\(text)\n```" : "`\(text)`"
+        case .countWords: "\(text.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }.count) words"
+        case .countCharacters: "\(text.count) characters"
+        case .sortLines: text.components(separatedBy: .newlines).sorted().joined(separator: "\n")
+        case .reverseLines: text.components(separatedBy: .newlines).reversed().joined(separator: "\n")
+        case .removeBlankLines: text.components(separatedBy: .newlines).filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.joined(separator: "\n")
         }
 
         pasteReplacingSelection(result, isEditable: selection.isEditable)

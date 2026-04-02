@@ -81,11 +81,10 @@ final class AppState {
             return ActionConfig.defaults
         }
         // Merge in any new built-in actions that were added in updates
-        var merged = actions
-        for defaultAction in ActionConfig.defaults where !actions.contains(where: { $0.id == defaultAction.id }) {
-            merged.append(ActionConfig(id: defaultAction.id, isEnabled: true, order: merged.count))
-        }
-        return merged
+        let existingIDs = Set(actions.map(\.id))
+        return actions + ActionConfig.defaults
+            .filter { !existingIDs.contains($0.id) }
+            .enumerated().map { ActionConfig(id: $1.id, isEnabled: true, order: actions.count + $0) }
     }
 }
 
