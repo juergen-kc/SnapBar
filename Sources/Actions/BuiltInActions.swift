@@ -225,12 +225,7 @@ func simulateKeyPress(keyCode: CGKeyCode, modifiers: CGEventFlags) {
     keyUp.post(tap: .cgAnnotatedSessionEventTap)
 }
 
-/// Carbon virtual key code lookup
-func carbonKeyCode(for key: String) -> CGKeyCode? {
-    carbonKeyCodes[key.lowercased()]
-}
-
-private let carbonKeyCodes: [String: CGKeyCode] = [
+let carbonKeyCodes: [String: CGKeyCode] = [
     "a": 0, "b": 11, "c": 8, "d": 2, "e": 14, "f": 3, "g": 5, "h": 4,
     "i": 34, "j": 38, "k": 40, "l": 37, "m": 46, "n": 45, "o": 31, "p": 35,
     "q": 12, "r": 15, "s": 1, "t": 17, "u": 32, "v": 9, "w": 13, "x": 7,

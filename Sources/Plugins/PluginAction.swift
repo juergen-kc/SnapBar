@@ -15,9 +15,7 @@ struct PluginAction: Action {
         if let max = definition.maxLength, selection.text.count > max { return false }
 
         // Check regex filter
-        if let pattern = definition.regex {
-            guard selection.text.range(of: pattern, options: .regularExpression) != nil else { return false }
-        }
+        if let pattern = definition.regex, selection.text.range(of: pattern, options: .regularExpression) == nil { return false }
 
         // Check app filter — if filter is set, require a matching bundle ID
         if let allowed = definition.appFilter {
@@ -122,7 +120,7 @@ struct PluginAction: Action {
 
         let flags = parts.compactMap { Self.modifierMap[$0] }.reduce(into: CGEventFlags()) { $0.formUnion($1) }
         guard let keyChar = parts.last(where: { Self.modifierMap[$0] == nil }),
-              let code = carbonKeyCode(for: keyChar) else { return }
+              let code = carbonKeyCodes[keyChar] else { return }
         simulateKeyPress(keyCode: code, modifiers: flags)
     }
 
