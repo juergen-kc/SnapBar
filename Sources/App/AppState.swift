@@ -173,8 +173,4 @@ struct TextSelection: Equatable {
         self.bundleIdentifier = bundleIdentifier
     }
 
-    /// Whether the selection contains meaningful (non-whitespace) content
-    var hasContent: Bool {
-        !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
 }
