@@ -88,7 +88,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
 
-        if let bundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier,
+        if let bundleID = selection.bundleIdentifier,
            appState.excludedApps.contains(bundleID) {
             DebugLog.log("handleSelection: excluded app \(bundleID), ignoring")
             return

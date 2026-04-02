@@ -186,15 +186,10 @@ struct RevealInFinderAction: Action {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmed.count < 1024 else { return nil }
 
-        // Expand ~ to home directory
         let expanded: String
-        if trimmed.hasPrefix("~/") {
-            expanded = NSString(string: trimmed).expandingTildeInPath
-        } else if trimmed.hasPrefix("/") {
-            expanded = trimmed
-        } else {
-            return nil
-        }
+        if trimmed.hasPrefix("~/") { expanded = NSString(string: trimmed).expandingTildeInPath }
+        else if trimmed.hasPrefix("/") { expanded = trimmed }
+        else { return nil }
 
         return FileManager.default.fileExists(atPath: expanded) ? expanded : nil
     }
@@ -208,24 +203,23 @@ struct DictionaryAction: Action {
     let icon = "book"
 
     func isApplicable(for selection: TextSelection) -> Bool {
-        let trimmed = selection.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        // Only show for single words or short phrases
-        let wordCount = trimmed.components(separatedBy: .whitespaces).count
-        return wordCount <= 3 && !trimmed.isEmpty
+        selection.hasContent && trimmed(selection).components(separatedBy: .whitespaces).count <= 3
     }
 
     func execute(with selection: TextSelection) {
-        let trimmed = selection.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        // Open Dictionary.app with the word
-        let script = "tell application \"Dictionary\" to activate"
-        if let appleScript = NSAppleScript(source: script) {
+        let word = trimmed(selection)
+        if let appleScript = NSAppleScript(source: "tell application \"Dictionary\" to activate") {
             appleScript.executeAndReturnError(nil)
         }
         // Use the system dictionary lookup
-        if let encoded = trimmed.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+        if let encoded = word.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
            let url = URL(string: "dict://\(encoded)") {
             NSWorkspace.shared.open(url)
         }
+    }
+
+    private func trimmed(_ selection: TextSelection) -> String {
+        selection.text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 

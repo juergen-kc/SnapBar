@@ -104,7 +104,7 @@ enum AccessibilityHelper {
 
     /// Convert an AppKit screen point (bottom-left origin) to AX coordinates (top-left origin).
     static func axPoint(from screenPoint: CGPoint) -> CGPoint {
-        let screenHeight = NSScreen.main?.frame.height ?? NSScreen.screens.first?.frame.height ?? 900
+        let screenHeight = (NSScreen.main ?? NSScreen.screens.first)?.frame.height ?? 900
         return CGPoint(x: screenPoint.x, y: screenHeight - screenPoint.y)
     }
 

@@ -62,8 +62,7 @@ final class SelectionMonitor: @unchecked Sendable {
         // Skip whitespace-only selections
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
 
-        // Guard against extremely large selections
-        let cappedText = text.count > 10_000 ? String(text.prefix(10_000)) : text
+        let cappedText = String(text.prefix(10_000))
 
         DebugLog.log("Selection detected: '\(cappedText.prefix(40))'")
 

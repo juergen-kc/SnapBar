@@ -153,11 +153,7 @@ struct PluginAction: Action {
         case .base64Encode:
             result = Data(selection.text.utf8).base64EncodedString()
         case .base64Decode:
-            if let data = Data(base64Encoded: selection.text), let decoded = String(data: data, encoding: .utf8) {
-                result = decoded
-            } else {
-                result = selection.text
-            }
+            result = Data(base64Encoded: selection.text).flatMap { String(data: $0, encoding: .utf8) } ?? selection.text
         case .urlEncode:
             result = selection.text.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? selection.text
         case .urlDecode:
