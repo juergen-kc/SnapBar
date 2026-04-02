@@ -192,8 +192,8 @@ struct DictionaryAction: Action {
     let icon = "book"
 
     func isApplicable(for selection: TextSelection) -> Bool {
-        selection.hasContent && selection.text.trimmingCharacters(in: .whitespacesAndNewlines)
-            .components(separatedBy: .whitespaces).count <= 3
+        let trimmed = selection.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        return !trimmed.isEmpty && trimmed.components(separatedBy: .whitespaces).count <= 3
     }
 
     func execute(with selection: TextSelection) {
