@@ -30,7 +30,7 @@ struct CutAction: Action {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(selection.text, forType: .string)
         // Simulate ⌘X via key event to let the app handle deletion
-        simulateKeyPress(key: .x, modifiers: .maskCommand)
+        simulateKeyPress(keyCode: carbonKeyCode(for: "x")!, modifiers: .maskCommand)
     }
 }
 
@@ -46,7 +46,7 @@ struct PasteAction: Action {
     }
 
     func execute(with selection: TextSelection) {
-        simulateKeyPress(key: .v, modifiers: .maskCommand)
+        simulateKeyPress(keyCode: carbonKeyCode(for: "v")!, modifiers: .maskCommand)
     }
 }
 
@@ -121,15 +121,9 @@ struct PastePlainTextAction: Action {
     }
 
     func execute(with selection: TextSelection) {
-        // Get the plain text from the clipboard
         guard let plainText = NSPasteboard.general.string(forType: .string) else { return }
-
-        // Replace clipboard with plain text only (stripping rich formatting)
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(plainText, forType: .string)
-
-        // Paste it
-        simulateKeyPress(key: .v, modifiers: .maskCommand)
+        // Re-set clipboard with plain text only (stripping rich formatting), then paste
+        pasteReplacingSelection(plainText, isEditable: true)
     }
 }
 
@@ -161,24 +155,11 @@ struct SpellingAction: Action {
         let guesses = checker.guesses(forWordRange: range, in: trimmed, language: nil, inSpellDocumentWithTag: 0) ?? []
 
         if let firstGuess = guesses.first {
-            // Replace misspelled word with the top suggestion
             let corrected = trimmed.replacingCharacters(
                 in: Range(range, in: trimmed)!,
                 with: firstGuess
             )
-
-            // Save current clipboard, paste correction, restore
-            let previous = NSPasteboard.general.string(forType: .string)
-            NSPasteboard.general.clearContents()
-            NSPasteboard.general.setString(corrected, forType: .string)
-            simulateKeyPress(key: .v, modifiers: .maskCommand)
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                if let prev = previous {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(prev, forType: .string)
-                }
-            }
+            pasteReplacingSelection(corrected, isEditable: true)
         }
     }
 }
@@ -257,8 +238,7 @@ struct DictionaryAction: Action {
 
 // MARK: - Key Simulation Helper
 
-func simulateKeyPress(key: KeyEquivalent, modifiers: CGEventFlags) {
-    let keyCode = key.carbonKeyCode
+func simulateKeyPress(keyCode: CGKeyCode, modifiers: CGEventFlags) {
     guard let keyDown = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: true),
           let keyUp = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: false)
     else { return }
@@ -269,15 +249,41 @@ func simulateKeyPress(key: KeyEquivalent, modifiers: CGEventFlags) {
     keyUp.post(tap: .cgAnnotatedSessionEventTap)
 }
 
-/// Maps SwiftUI KeyEquivalent-like values to Carbon key codes
-enum KeyEquivalent {
-    case x, v, c
+/// Carbon virtual key code lookup
+func carbonKeyCode(for key: String) -> CGKeyCode? {
+    carbonKeyCodes[key.lowercased()]
+}
 
-    var carbonKeyCode: CGKeyCode {
-        switch self {
-        case .x: 7   // kVK_ANSI_X
-        case .v: 9   // kVK_ANSI_V
-        case .c: 8   // kVK_ANSI_C
+private let carbonKeyCodes: [String: CGKeyCode] = [
+    "a": 0, "b": 11, "c": 8, "d": 2, "e": 14, "f": 3, "g": 5, "h": 4,
+    "i": 34, "j": 38, "k": 40, "l": 37, "m": 46, "n": 45, "o": 31, "p": 35,
+    "q": 12, "r": 15, "s": 1, "t": 17, "u": 32, "v": 9, "w": 13, "x": 7,
+    "y": 16, "z": 6,
+    "0": 29, "1": 18, "2": 19, "3": 20, "4": 21, "5": 23, "6": 22, "7": 26,
+    "8": 28, "9": 25,
+    "return": 36, "enter": 36, "tab": 48, "space": 49, "escape": 53, "esc": 53,
+    "delete": 51, "backspace": 51, "forwarddelete": 117,
+    "up": 126, "down": 125, "left": 123, "right": 124,
+    "f1": 122, "f2": 120, "f3": 99, "f4": 118, "f5": 96, "f6": 97,
+    "f7": 98, "f8": 100, "f9": 101, "f10": 109, "f11": 103, "f12": 111,
+]
+
+/// Paste text into the focused field, restoring the previous clipboard after a short delay.
+/// If the selection is not editable, just copies the text to the clipboard.
+func pasteReplacingSelection(_ text: String, isEditable: Bool) {
+    let previousClipboard = NSPasteboard.general.string(forType: .string)
+
+    NSPasteboard.general.clearContents()
+    NSPasteboard.general.setString(text, forType: .string)
+
+    if isEditable {
+        simulateKeyPress(keyCode: carbonKeyCodes["v"]!, modifiers: .maskCommand)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            if let prev = previousClipboard {
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(prev, forType: .string)
+            }
         }
     }
 }

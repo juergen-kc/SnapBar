@@ -59,35 +59,15 @@ struct PluginAction: Action {
             return
         }
 
-        // Put selected text on a pasteboard for the service
         let pboard = NSPasteboard(name: .init("SnapBarService"))
         pboard.clearContents()
         pboard.setString(selection.text, forType: .string)
 
-        // Perform the service
         let success = NSPerformService(serviceName, pboard)
 
         if success {
-            // Check if the service returned modified text
             if let result = pboard.string(forType: .string), result != selection.text {
-                // Service modified the text — paste it back if editable
-                if selection.isEditable {
-                    let previousClipboard = NSPasteboard.general.string(forType: .string)
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(result, forType: .string)
-                    simulateKeyPress(key: .v, modifiers: .maskCommand)
-
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        if let prev = previousClipboard {
-                            NSPasteboard.general.clearContents()
-                            NSPasteboard.general.setString(prev, forType: .string)
-                        }
-                    }
-                } else {
-                    // Not editable — just copy result to clipboard
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(result, forType: .string)
-                }
+                pasteReplacingSelection(result, isEditable: selection.isEditable)
             }
             DebugLog.log("Service '\(serviceName)' executed successfully")
         } else {
@@ -182,15 +162,7 @@ struct PluginAction: Action {
         }
 
         guard let char = keyChar, let code = carbonKeyCode(for: char) else { return }
-
-        guard let keyDown = CGEvent(keyboardEventSource: nil, virtualKey: code, keyDown: true),
-              let keyUp = CGEvent(keyboardEventSource: nil, virtualKey: code, keyDown: false)
-        else { return }
-
-        keyDown.flags = flags
-        keyUp.flags = flags
-        keyDown.post(tap: .cgAnnotatedSessionEventTap)
-        keyUp.post(tap: .cgAnnotatedSessionEventTap)
+        simulateKeyPress(keyCode: code, modifiers: flags)
     }
 
     private func executeCopyTransform(with selection: TextSelection) {
@@ -241,24 +213,7 @@ struct PluginAction: Action {
             result = selection.text.components(separatedBy: .newlines).filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.joined(separator: "\n")
         }
 
-        // Save current clipboard, set result, paste if editable, then restore
-        let previousClipboard = NSPasteboard.general.string(forType: .string)
-
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(result, forType: .string)
-
-        if selection.isEditable {
-            // Paste to replace the selected text
-            simulateKeyPress(key: .v, modifiers: .maskCommand)
-
-            // Restore previous clipboard after a short delay
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                if let prev = previousClipboard {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(prev, forType: .string)
-                }
-            }
-        }
+        pasteReplacingSelection(result, isEditable: selection.isEditable)
     }
 
     private func executeJavaScript(with selection: TextSelection) {
@@ -283,42 +238,9 @@ struct PluginAction: Action {
         // Evaluate the script
         guard let result = context.evaluateScript(code) else { return }
 
-        // If the script returned a string, use it as the output
         if !result.isUndefined, !result.isNull, let output = result.toString(), !output.isEmpty {
-            let previousClipboard = NSPasteboard.general.string(forType: .string)
-
-            NSPasteboard.general.clearContents()
-            NSPasteboard.general.setString(output, forType: .string)
-
-            if selection.isEditable {
-                simulateKeyPress(key: .v, modifiers: .maskCommand)
-
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    if let prev = previousClipboard {
-                        NSPasteboard.general.clearContents()
-                        NSPasteboard.general.setString(prev, forType: .string)
-                    }
-                }
-            }
+            pasteReplacingSelection(output, isEditable: selection.isEditable)
         }
     }
 
-    // MARK: - Key Code Mapping
-
-    private func carbonKeyCode(for character: String) -> CGKeyCode? {
-        let map: [String: CGKeyCode] = [
-            "a": 0, "b": 11, "c": 8, "d": 2, "e": 14, "f": 3, "g": 5, "h": 4,
-            "i": 34, "j": 38, "k": 40, "l": 37, "m": 46, "n": 45, "o": 31, "p": 35,
-            "q": 12, "r": 15, "s": 1, "t": 17, "u": 32, "v": 9, "w": 13, "x": 7,
-            "y": 16, "z": 6,
-            "0": 29, "1": 18, "2": 19, "3": 20, "4": 21, "5": 23, "6": 22, "7": 26,
-            "8": 28, "9": 25,
-            "return": 36, "enter": 36, "tab": 48, "space": 49, "escape": 53, "esc": 53,
-            "delete": 51, "backspace": 51, "forwarddelete": 117,
-            "up": 126, "down": 125, "left": 123, "right": 124,
-            "f1": 122, "f2": 120, "f3": 99, "f4": 118, "f5": 96, "f6": 97,
-            "f7": 98, "f8": 100, "f9": 101, "f10": 109, "f11": 103, "f12": 111,
-        ]
-        return map[character.lowercased()]
-    }
 }

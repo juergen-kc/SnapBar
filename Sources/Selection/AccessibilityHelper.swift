@@ -24,16 +24,22 @@ enum AccessibilityHelper {
         return (element as! AXUIElement)
     }
 
+    /// Resolve a target element: use the provided element, fall back to focused, then system-wide.
+    private static func resolveTarget(_ element: AXUIElement? = nil) -> AXUIElement? {
+        if let element { return element }
+        if let focused = focusedElement() { return focused }
+
+        // Fallback: system-wide focused element
+        let systemWide = AXUIElementCreateSystemWide()
+        var systemFocused: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(systemWide, kAXFocusedUIElementAttribute as CFString, &systemFocused) == .success
+        else { return nil }
+        return (systemFocused as! AXUIElement)
+    }
+
     /// Get the selected text from the focused element
     static func selectedText(from element: AXUIElement? = nil) -> String? {
-        let target: AXUIElement
-        if let element {
-            target = element
-        } else if let focused = focusedElement() {
-            target = focused
-        } else {
-            return nil
-        }
+        guard let target = resolveTarget(element) else { return nil }
 
         var value: CFTypeRef?
         let result = AXUIElementCopyAttributeValue(target, kAXSelectedTextAttribute as CFString, &value)
@@ -42,16 +48,16 @@ enum AccessibilityHelper {
             return text
         }
 
-        // Fallback: try the system-wide element
+        // Fallback: try the system-wide element directly (may differ from resolveTarget's result)
         let systemWide = AXUIElementCreateSystemWide()
         var systemFocused: CFTypeRef?
-        let sysResult = AXUIElementCopyAttributeValue(systemWide, kAXFocusedUIElementAttribute as CFString, &systemFocused)
-        if sysResult == .success, let sysElement = systemFocused {
-            var sysValue: CFTypeRef?
-            let textResult = AXUIElementCopyAttributeValue(sysElement as! AXUIElement, kAXSelectedTextAttribute as CFString, &sysValue)
-            if textResult == .success, let text = sysValue as? String, !text.isEmpty {
-                return text
-            }
+        guard AXUIElementCopyAttributeValue(systemWide, kAXFocusedUIElementAttribute as CFString, &systemFocused) == .success
+        else { return nil }
+
+        var sysValue: CFTypeRef?
+        let sysResult = AXUIElementCopyAttributeValue(systemFocused as! AXUIElement, kAXSelectedTextAttribute as CFString, &sysValue)
+        if sysResult == .success, let text = sysValue as? String, !text.isEmpty {
+            return text
         }
 
         return nil
@@ -59,19 +65,7 @@ enum AccessibilityHelper {
 
     /// Get the bounds of the selected text in screen coordinates
     static func selectedTextBounds(from element: AXUIElement? = nil) -> CGRect? {
-        let target: AXUIElement
-        if let element {
-            target = element
-        } else if let focused = focusedElement() {
-            target = focused
-        } else {
-            // Try system-wide
-            let systemWide = AXUIElementCreateSystemWide()
-            var systemFocused: CFTypeRef?
-            guard AXUIElementCopyAttributeValue(systemWide, kAXFocusedUIElementAttribute as CFString, &systemFocused) == .success,
-                  let sysElement = systemFocused else { return nil }
-            return selectedTextBoundsFromElement(sysElement as! AXUIElement)
-        }
+        guard let target = resolveTarget(element) else { return nil }
         return selectedTextBoundsFromElement(target)
     }
 
@@ -100,14 +94,7 @@ enum AccessibilityHelper {
     }
 
     static func isEditable(element: AXUIElement? = nil) -> Bool {
-        let target: AXUIElement
-        if let element {
-            target = element
-        } else if let focused = focusedElement() {
-            target = focused
-        } else {
-            return false
-        }
+        guard let target = resolveTarget(element) else { return false }
 
         var role: CFTypeRef?
         AXUIElementCopyAttributeValue(target, kAXRoleAttribute as CFString, &role)
