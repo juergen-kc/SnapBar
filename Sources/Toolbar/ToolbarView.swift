@@ -98,11 +98,6 @@ struct ToolbarView: View {
             if expandedGroup != nil { expandedGroup = nil } else { onDismiss() }
             return .handled
         }
-        .onKeyPress(keys: []) { _ in
-            guard !keyboardMode else { return .ignored }
-            onDismiss()
-            return .handled
-        }
     }
 
     private func isFocused(_ index: Int) -> Bool {
@@ -122,7 +117,6 @@ struct ToolbarView: View {
             .contentShape(Rectangle())
     }
 
-    @ViewBuilder
     private func actionButton(for action: any Action, index: Int) -> some View {
         Button {
             action.execute(with: selection)
@@ -165,7 +159,7 @@ struct ToolbarView: View {
         .buttonStyle(.plain)
         .help(name)
         .popover(isPresented: Binding(
-            get: { isExpanded },
+            get: { expandedGroup == name },
             set: { expandedGroup = $0 ? name : nil }
         ), arrowEdge: .bottom) {
             VStack(alignment: .leading, spacing: 2) {

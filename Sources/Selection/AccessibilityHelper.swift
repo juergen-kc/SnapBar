@@ -1,5 +1,4 @@
 import AppKit
-import ApplicationServices
 
 enum AccessibilityHelper {
     static func isTrusted() -> Bool {
