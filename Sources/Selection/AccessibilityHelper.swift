@@ -104,6 +104,12 @@ enum AccessibilityHelper {
         return CGPoint(x: screenPoint.x, y: screenHeight - screenPoint.y)
     }
 
+    /// Get selected text bounds, falling back to the current mouse position in AX coordinates.
+    static func selectedTextBoundsOrMouse() -> CGRect {
+        selectedTextBounds()
+            ?? CGRect(origin: axPoint(from: NSEvent.mouseLocation), size: .zero)
+    }
+
     private static func elementBounds(_ element: AXUIElement) -> CGRect? {
         guard let posValue = axAttribute(element, kAXPositionAttribute as CFString),
               let sizeValue = axAttribute(element, kAXSizeAttribute as CFString)

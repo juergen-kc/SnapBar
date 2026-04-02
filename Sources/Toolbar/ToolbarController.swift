@@ -62,8 +62,8 @@ final class ToolbarController {
             panel.makeKey()
         }
 
-        NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0.1
+        NSAnimationContext.runAnimationGroup {
+            $0.duration = 0.1
             panel.animator().alphaValue = 1
         }
 
@@ -88,8 +88,7 @@ final class ToolbarController {
     func summonViaKeyboard() {
         guard let text = AccessibilityHelper.selectedText(), !text.isEmpty else { return }
 
-        let bounds = AccessibilityHelper.selectedTextBounds()
-            ?? CGRect(origin: AccessibilityHelper.axPoint(from: NSEvent.mouseLocation), size: .zero)
+        let bounds = AccessibilityHelper.selectedTextBoundsOrMouse()
 
         let selection = TextSelection(
             text: text,
@@ -108,8 +107,8 @@ final class ToolbarController {
 
         removeDismissMonitors()
 
-        NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 0.08
+        NSAnimationContext.runAnimationGroup({
+            $0.duration = 0.08
             panel.animator().alphaValue = 0
         }, completionHandler: { [weak self] in
             panel.orderOut(nil)
@@ -197,9 +196,7 @@ final class ToolbarController {
     }
 
     private func removeMonitor(_ monitor: inout Any?) {
-        if let m = monitor {
-            NSEvent.removeMonitor(m)
-            monitor = nil
-        }
+        monitor.map(NSEvent.removeMonitor)
+        monitor = nil
     }
 }
