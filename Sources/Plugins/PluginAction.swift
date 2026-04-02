@@ -161,13 +161,13 @@ struct PluginAction: Action {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: executable)
         process.arguments = arguments
-        if let environment { process.environment = environment }
+        process.environment = environment
 
         let inputPipe = Pipe()
         process.standardInput = inputPipe
 
         let outputPipe = captureOutput ? Pipe() : nil
-        if let outputPipe { process.standardOutput = outputPipe }
+        process.standardOutput = outputPipe
 
         try? process.run()
         inputPipe.fileHandleForWriting.write(Data(input.utf8))
