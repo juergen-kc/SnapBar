@@ -262,7 +262,7 @@ func pasteReplacingSelection(_ text: String, isEditable: Bool) {
         simulateKeyPress(keyCode: carbonKeyCodes["v"]!, modifiers: .maskCommand)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            previousClipboard.map(copyToClipboard)
+            if let previousClipboard { copyToClipboard(previousClipboard) }
         }
     }
 }

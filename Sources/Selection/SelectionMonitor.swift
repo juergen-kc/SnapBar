@@ -57,10 +57,7 @@ final class SelectionMonitor: @unchecked Sendable {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
 
         let cappedText = String(text.prefix(10_000))
-
         DebugLog.log("Selection detected: '\(cappedText.prefix(40))'")
-
-        // Get bounds and context — use screen-aware mouse fallback
         onSelection(TextSelection(
             text: cappedText,
             bounds: AccessibilityHelper.selectedTextBoundsOrMouse(),

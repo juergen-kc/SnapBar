@@ -177,7 +177,7 @@ final class ToolbarController {
     }
 
     private func removeMonitor(_ monitor: inout Any?) {
-        monitor.map(NSEvent.removeMonitor)
+        if let monitor { NSEvent.removeMonitor(monitor) }
         monitor = nil
     }
 }

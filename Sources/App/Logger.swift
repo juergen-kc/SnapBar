@@ -20,17 +20,17 @@ enum DebugLog {
         logger.notice("\(message)")
         guard let data = line.data(using: .utf8) else { return }
 
-        if let handle = try? FileHandle(forWritingTo: fileURL) {
-            defer { handle.closeFile() }
-            let size = handle.seekToEndOfFile()
-            if size > maxLogSize {
-                rotateLog()
-            } else {
-                handle.write(data)
-                return
-            }
+        guard let handle = try? FileHandle(forWritingTo: fileURL) else {
+            try? data.write(to: fileURL)
+            return
         }
-        try? data.write(to: fileURL)
+        defer { handle.closeFile() }
+        guard handle.seekToEndOfFile() <= maxLogSize else {
+            rotateLog()
+            try? data.write(to: fileURL)
+            return
+        }
+        handle.write(data)
     }
 
     private static func rotateLog() {
