@@ -22,24 +22,20 @@ enum DebugLog {
         let timestamp = formatter.string(from: Date())
         let line = "[\(timestamp)] \(message)\n"
         logger.notice("\(message)")
-        if let data = line.data(using: .utf8) {
-            if FileManager.default.fileExists(atPath: fileURL.path) {
-                if let handle = try? FileHandle(forWritingTo: fileURL) {
-                    // Rotate if too large
-                    let size = handle.seekToEndOfFile()
-                    if size > maxLogSize {
-                        handle.closeFile()
-                        rotateLog()
-                        try? data.write(to: fileURL)
-                    } else {
-                        handle.write(data)
-                        handle.closeFile()
-                    }
-                }
+        guard let data = line.data(using: .utf8) else { return }
+
+        if let handle = try? FileHandle(forWritingTo: fileURL) {
+            let size = handle.seekToEndOfFile()
+            if size > maxLogSize {
+                handle.closeFile()
+                rotateLog()
             } else {
-                try? data.write(to: fileURL)
+                handle.write(data)
+                handle.closeFile()
+                return
             }
         }
+        try? data.write(to: fileURL)
     }
 
     private static func rotateLog() {

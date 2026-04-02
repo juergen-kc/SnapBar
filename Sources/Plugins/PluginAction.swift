@@ -25,9 +25,8 @@ struct PluginAction: Action {
         }
 
         // Check app exclusion
-        if let excluded = definition.appExclude, let bundleID = selection.bundleIdentifier {
-            if excluded.contains(bundleID) { return false }
-        }
+        if let excluded = definition.appExclude, let bundleID = selection.bundleIdentifier,
+           excluded.contains(bundleID) { return false }
 
         return true
     }

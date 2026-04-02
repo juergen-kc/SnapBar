@@ -121,53 +121,10 @@ struct ToolbarView: View {
         keyboardMode && index == focusedIndex
     }
 
-    @ViewBuilder
-    private func actionButton(for action: any Action, index: Int) -> some View {
-        let isFocused = isFocused(index)
-
-        Button {
-            action.execute(with: selection)
-            onDismiss()
-        } label: {
-            Image(systemName: action.icon)
-                .font(.system(size: appState.toolbarSize.iconSize, weight: .medium))
-                .foregroundStyle(isFocused ? .white : .primary)
-                .frame(
-                    width: appState.toolbarSize.buttonSize,
-                    height: appState.toolbarSize.buttonSize
-                )
-                .background {
-                    if isFocused {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(.tint)
-                    }
-                }
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .help(action.title)
-    }
-
-    @ViewBuilder
-    private func groupButton(name: String, icon: String, actions: [any Action], index: Int) -> some View {
-        let isFocused = isFocused(index)
-        let isExpanded = expandedGroup == name
-
-        Button {
-            withAnimation(.snappy(duration: 0.2)) {
-                expandedGroup = isExpanded ? nil : name
-            }
-        } label: {
-            HStack(spacing: 2) {
-                Image(systemName: icon)
-                    .font(.system(size: appState.toolbarSize.iconSize, weight: .medium))
-                Image(systemName: "chevron.down")
-                    .font(.system(size: appState.toolbarSize.iconSize * 0.55, weight: .semibold))
-                    .rotationEffect(.degrees(isExpanded ? 180 : 0))
-            }
+    /// Apply focus highlight styling (foreground color + background tint) used by both action and group buttons.
+    private func focusHighlight<Content: View>(_ isFocused: Bool, @ViewBuilder content: () -> Content) -> some View {
+        content()
             .foregroundStyle(isFocused ? .white : .primary)
-            .frame(height: appState.toolbarSize.buttonSize)
-            .padding(.horizontal, 6)
             .background {
                 if isFocused {
                     RoundedRectangle(cornerRadius: 8)
@@ -175,6 +132,47 @@ struct ToolbarView: View {
                 }
             }
             .contentShape(Rectangle())
+    }
+
+    @ViewBuilder
+    private func actionButton(for action: any Action, index: Int) -> some View {
+        Button {
+            action.execute(with: selection)
+            onDismiss()
+        } label: {
+            focusHighlight(isFocused(index)) {
+                Image(systemName: action.icon)
+                    .font(.system(size: appState.toolbarSize.iconSize, weight: .medium))
+                    .frame(
+                        width: appState.toolbarSize.buttonSize,
+                        height: appState.toolbarSize.buttonSize
+                    )
+            }
+        }
+        .buttonStyle(.plain)
+        .help(action.title)
+    }
+
+    @ViewBuilder
+    private func groupButton(name: String, icon: String, actions: [any Action], index: Int) -> some View {
+        let isExpanded = expandedGroup == name
+
+        Button {
+            withAnimation(.snappy(duration: 0.2)) {
+                expandedGroup = isExpanded ? nil : name
+            }
+        } label: {
+            focusHighlight(isFocused(index)) {
+                HStack(spacing: 2) {
+                    Image(systemName: icon)
+                        .font(.system(size: appState.toolbarSize.iconSize, weight: .medium))
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: appState.toolbarSize.iconSize * 0.55, weight: .semibold))
+                        .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                }
+                .frame(height: appState.toolbarSize.buttonSize)
+                .padding(.horizontal, 6)
+            }
         }
         .buttonStyle(.plain)
         .help(name)

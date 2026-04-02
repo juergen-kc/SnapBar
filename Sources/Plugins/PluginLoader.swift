@@ -21,10 +21,7 @@ enum PluginLoader {
             includingPropertiesForKeys: nil
         ) else { return [] }
 
-        let pluginFiles = files.filter { url in
-            let ext = url.pathExtension.lowercased()
-            return ext == "yaml" || ext == "yml" || ext == "json"
-        }
+        let pluginFiles = files.filter { isPluginFile($0.pathExtension) }
 
         return pluginFiles.compactMap { loadPlugin(from: $0) }
     }
@@ -33,9 +30,7 @@ enum PluginLoader {
     static func loadPlugin(from url: URL) -> PluginDefinition? {
         guard let data = try? Data(contentsOf: url) else { return nil }
 
-        let ext = url.pathExtension.lowercased()
-
-        if ext == "json" {
+        if url.pathExtension.lowercased() == "json" {
             return try? JSONDecoder().decode(PluginDefinition.self, from: data)
         }
 
@@ -63,6 +58,12 @@ enum PluginLoader {
         let url = pluginsDirectory.appendingPathComponent("\(filename).json")
         let data = try JSONEncoder().encode(definition)
         try data.write(to: url)
+    }
+
+    /// Whether a file extension is a supported plugin format.
+    static func isPluginFile(_ ext: String) -> Bool {
+        let lower = ext.lowercased()
+        return lower == "yaml" || lower == "yml" || lower == "json"
     }
 
     // MARK: - Simple YAML Parser
