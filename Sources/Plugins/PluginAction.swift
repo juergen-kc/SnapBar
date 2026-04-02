@@ -163,8 +163,7 @@ struct PluginAction: Action {
         case .markdownCode:
             result = selection.text.contains("\n") ? "```\n\(selection.text)\n```" : "`\(selection.text)`"
         case .countWords:
-            let count = selection.text.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }.count
-            result = "\(count) words"
+            result = "\(selection.text.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }.count) words"
         case .countCharacters:
             result = "\(selection.text.count) characters"
         case .sortLines:

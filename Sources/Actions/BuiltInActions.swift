@@ -206,11 +206,8 @@ struct DictionaryAction: Action {
     }
 
     func execute(with selection: TextSelection) {
+        NSAppleScript(source: "tell application \"Dictionary\" to activate")?.executeAndReturnError(nil)
         let word = trimmed(selection)
-        if let appleScript = NSAppleScript(source: "tell application \"Dictionary\" to activate") {
-            appleScript.executeAndReturnError(nil)
-        }
-        // Use the system dictionary lookup
         if let encoded = word.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
            let url = URL(string: "dict://\(encoded)") {
             NSWorkspace.shared.open(url)

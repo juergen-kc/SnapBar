@@ -89,12 +89,9 @@ enum AccessibilityHelper {
     static func isEditable(element: AXUIElement? = nil) -> Bool {
         guard let target = resolveTarget(element) else { return false }
 
-        let roleStr = axAttribute(target, kAXRoleAttribute as CFString) as? String ?? ""
+        let role = axAttribute(target, kAXRoleAttribute as CFString) as? String ?? ""
 
-        if roleStr == kAXTextFieldRole || roleStr == kAXTextAreaRole {
-            return true
-        }
-
+        if role == kAXTextFieldRole || role == kAXTextAreaRole { return true }
         return axAttribute(target, "AXEditable" as CFString) as? Bool ?? false
     }
 

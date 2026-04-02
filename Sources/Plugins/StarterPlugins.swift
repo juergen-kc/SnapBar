@@ -8,8 +8,7 @@ enum StarterPlugins {
 
         // Only install if the directory is empty
         let existing = (try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? []
-        let pluginFiles = existing.filter { PluginLoader.isPluginFile(($0 as NSString).pathExtension) }
-        guard pluginFiles.isEmpty else { return }
+        guard !existing.contains(where: { PluginLoader.isPluginFile(($0 as NSString).pathExtension) }) else { return }
 
         for (filename, content) in plugins {
             let url = dir.appendingPathComponent(filename)
