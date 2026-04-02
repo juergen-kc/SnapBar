@@ -18,10 +18,7 @@ final class ToolbarController {
     /// Call before releasing to clean up event monitors
     func tearDown() {
         removeDismissMonitors()
-        if let keyboardShortcutMonitor {
-            NSEvent.removeMonitor(keyboardShortcutMonitor)
-            self.keyboardShortcutMonitor = nil
-        }
+        removeMonitor(&keyboardShortcutMonitor)
     }
 
     // MARK: - Show / Dismiss
@@ -202,13 +199,14 @@ final class ToolbarController {
     }
 
     private func removeDismissMonitors() {
-        if let dismissMonitor {
-            NSEvent.removeMonitor(dismissMonitor)
-            self.dismissMonitor = nil
-        }
-        if let scrollMonitor {
-            NSEvent.removeMonitor(scrollMonitor)
-            self.scrollMonitor = nil
+        removeMonitor(&dismissMonitor)
+        removeMonitor(&scrollMonitor)
+    }
+
+    private func removeMonitor(_ monitor: inout Any?) {
+        if let m = monitor {
+            NSEvent.removeMonitor(m)
+            monitor = nil
         }
     }
 }

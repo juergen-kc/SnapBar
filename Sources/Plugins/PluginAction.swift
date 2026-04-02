@@ -87,41 +87,18 @@ struct PluginAction: Action {
         guard let script = definition.script else { return }
         let interpreter = definition.scriptInterpreter ?? "/bin/bash"
 
+        let arguments = interpreter.contains("osascript") ? ["-e", script] : ["-c", script]
+
+        var env = ProcessInfo.processInfo.environment
+        env["SNAPBAR_TEXT"] = selection.text
+
         Task.detached {
-            let process = Process()
-            process.executableURL = URL(fileURLWithPath: interpreter)
-
-            if interpreter.contains("osascript") {
-                process.arguments = ["-e", script]
-            } else {
-                process.arguments = ["-c", script]
-            }
-
-            // Pass selected text as environment variable and stdin
-            var env = ProcessInfo.processInfo.environment
-            env["SNAPBAR_TEXT"] = selection.text
-            process.environment = env
-
-            let inputPipe = Pipe()
-            process.standardInput = inputPipe
-            let outputPipe = Pipe()
-            process.standardOutput = outputPipe
-
-            try? process.run()
-
-            // Write selected text to stdin
-            inputPipe.fileHandleForWriting.write(Data(selection.text.utf8))
-            inputPipe.fileHandleForWriting.closeFile()
-
-            process.waitUntilExit()
-
-            // If the script produced output, copy it to clipboard
-            let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
-            if let output = String(data: outputData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines),
-               !output.isEmpty {
-                await MainActor.run {
-                    copyToClipboard(output)
-                }
+            let output = runProcess(
+                executable: interpreter, arguments: arguments,
+                input: selection.text, environment: env, captureOutput: true
+            )
+            if let output, !output.isEmpty {
+                await MainActor.run { copyToClipboard(output) }
             }
         }
     }
@@ -129,17 +106,11 @@ struct PluginAction: Action {
     private func executeShortcut(with selection: TextSelection) {
         guard let name = definition.shortcutName else { return }
         Task.detached {
-            let process = Process()
-            process.executableURL = URL(fileURLWithPath: "/usr/bin/shortcuts")
-            process.arguments = ["run", name, "--input-path", "-"]
-
-            let inputPipe = Pipe()
-            process.standardInput = inputPipe
-
-            try? process.run()
-            inputPipe.fileHandleForWriting.write(Data(selection.text.utf8))
-            inputPipe.fileHandleForWriting.closeFile()
-            process.waitUntilExit()
+            runProcess(
+                executable: "/usr/bin/shortcuts",
+                arguments: ["run", name, "--input-path", "-"],
+                input: selection.text
+            )
         }
     }
 
@@ -213,6 +184,34 @@ struct PluginAction: Action {
         }
 
         pasteReplacingSelection(result, isEditable: selection.isEditable)
+    }
+
+    /// Run a subprocess with optional stdin input and output capture.
+    @discardableResult
+    private func runProcess(
+        executable: String, arguments: [String],
+        input: String, environment: [String: String]? = nil,
+        captureOutput: Bool = false
+    ) -> String? {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: executable)
+        process.arguments = arguments
+        if let environment { process.environment = environment }
+
+        let inputPipe = Pipe()
+        process.standardInput = inputPipe
+
+        let outputPipe = captureOutput ? Pipe() : nil
+        if let outputPipe { process.standardOutput = outputPipe }
+
+        try? process.run()
+        inputPipe.fileHandleForWriting.write(Data(input.utf8))
+        inputPipe.fileHandleForWriting.closeFile()
+        process.waitUntilExit()
+
+        guard let outputPipe else { return nil }
+        let data = outputPipe.fileHandleForReading.readDataToEndOfFile()
+        return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private func executeJavaScript(with selection: TextSelection) {

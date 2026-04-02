@@ -133,32 +133,27 @@ struct SpellingAction: Action {
     let icon = "textformat.abc"
 
     func isApplicable(for selection: TextSelection) -> Bool {
-        guard selection.isEditable else { return false }
-        let trimmed = selection.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        // Only for single words or short text
-        guard !trimmed.isEmpty, trimmed.count < 100 else { return false }
-
-        let checker = NSSpellChecker.shared
-        let range = checker.checkSpelling(of: trimmed, startingAt: 0)
-        return range.location != NSNotFound
+        selection.isEditable && correction(for: selection.text) != nil
     }
 
     func execute(with selection: TextSelection) {
-        let trimmed = selection.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let corrected = correction(for: selection.text) else { return }
+        pasteReplacingSelection(corrected, isEditable: true)
+    }
+
+    /// Returns the corrected text if a misspelling is found, nil otherwise.
+    private func correction(for text: String) -> String? {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, trimmed.count < 100 else { return nil }
+
         let checker = NSSpellChecker.shared
         let range = checker.checkSpelling(of: trimmed, startingAt: 0)
-        guard range.location != NSNotFound else { return }
+        guard range.location != NSNotFound else { return nil }
 
-        let misspelled = (trimmed as NSString).substring(with: range)
         let guesses = checker.guesses(forWordRange: range, in: trimmed, language: nil, inSpellDocumentWithTag: 0) ?? []
+        guard let firstGuess = guesses.first else { return nil }
 
-        if let firstGuess = guesses.first {
-            let corrected = trimmed.replacingCharacters(
-                in: Range(range, in: trimmed)!,
-                with: firstGuess
-            )
-            pasteReplacingSelection(corrected, isEditable: true)
-        }
+        return trimmed.replacingCharacters(in: Range(range, in: trimmed)!, with: firstGuess)
     }
 }
 
