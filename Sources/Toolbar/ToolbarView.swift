@@ -28,13 +28,11 @@ enum ToolbarItem: Identifiable {
         }
 
         // Append groups in order they first appeared
-        for name in groupOrder {
-            guard let group = groups[name] else { continue }
-            if group.actions.count == 1 {
-                items.append(.single(group.actions[0]))
-            } else {
-                items.append(.group(name: name, icon: group.icon, actions: group.actions))
-            }
+        items += groupOrder.compactMap { name -> ToolbarItem? in
+            guard let group = groups[name] else { return nil }
+            return group.actions.count == 1
+                ? .single(group.actions[0])
+                : .group(name: name, icon: group.icon, actions: group.actions)
         }
 
         return items
@@ -97,11 +95,7 @@ struct ToolbarView: View {
             return .handled
         }
         .onKeyPress(.escape) {
-            if expandedGroup != nil {
-                expandedGroup = nil
-                return .handled
-            }
-            onDismiss()
+            if expandedGroup != nil { expandedGroup = nil } else { onDismiss() }
             return .handled
         }
         .onKeyPress(keys: []) { _ in

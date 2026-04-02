@@ -5,10 +5,7 @@ let logger = Logger(subsystem: "com.snapbar.app", category: "SnapBar")
 
 /// Debug logger that writes to both os_log and ~/.snapbar/debug.log
 enum DebugLog {
-    private nonisolated(unsafe) static let formatter: ISO8601DateFormatter = {
-        let f = ISO8601DateFormatter()
-        return f
-    }()
+    private nonisolated(unsafe) static let formatter = ISO8601DateFormatter()
 
     static let fileURL: URL = {
         let url = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".snapbar/debug.log")

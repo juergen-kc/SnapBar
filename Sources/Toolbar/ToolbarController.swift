@@ -44,13 +44,14 @@ final class ToolbarController {
         .environment(appState)
 
         let hostingView = NSHostingView(rootView: toolbarView)
-        hostingView.frame.size = hostingView.fittingSize
+        let fittingSize = hostingView.fittingSize
+        hostingView.frame.size = fittingSize
         panel.contentView = hostingView
-        panel.setContentSize(hostingView.fittingSize)
+        panel.setContentSize(fittingSize)
 
         let toolbarFrame = calculatePosition(
             selectionBounds: selection.bounds,
-            toolbarSize: hostingView.fittingSize,
+            toolbarSize: fittingSize,
             position: appState.toolbarPosition
         )
         panel.setFrameOrigin(toolbarFrame.origin)
@@ -107,13 +108,13 @@ final class ToolbarController {
 
         removeDismissMonitors()
 
-        NSAnimationContext.runAnimationGroup({
+        NSAnimationContext.runAnimationGroup {
             $0.duration = 0.08
             panel.animator().alphaValue = 0
-        }, completionHandler: { [weak self] in
+        } completionHandler: { [weak self] in
             panel.orderOut(nil)
             self?.panel = nil
-        })
+        }
     }
 
     // MARK: - Keyboard Shortcut
@@ -180,8 +181,9 @@ final class ToolbarController {
         dismissMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
             guard let self, let panel = self.panel else { return }
             let locationInPanel = panel.convertPoint(fromScreen: event.locationInWindow)
-            if let contentView = panel.contentView, !contentView.bounds.contains(locationInPanel) {
+            guard panel.contentView?.bounds.contains(locationInPanel) == true else {
                 self.dismiss()
+                return
             }
         }
 

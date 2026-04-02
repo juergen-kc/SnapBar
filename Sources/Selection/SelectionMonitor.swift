@@ -40,11 +40,9 @@ final class SelectionMonitor: @unchecked Sendable {
 
         // Track mouse position
         let currentMouse = NSEvent.mouseLocation
-        let mouseButtons = NSEvent.pressedMouseButtons
-        let isMouseDown = (mouseButtons & 1) != 0
 
         // Only check when mouse button is NOT pressed (selection just completed)
-        guard !isMouseDown else {
+        guard (NSEvent.pressedMouseButtons & 1) == 0 else {
             lastMouseLocation = currentMouse
             return
         }

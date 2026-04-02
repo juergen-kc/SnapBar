@@ -185,10 +185,8 @@ struct RevealInFinderAction: Action {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmed.count < 1024 else { return nil }
 
-        let expanded: String
-        if trimmed.hasPrefix("~/") { expanded = NSString(string: trimmed).expandingTildeInPath }
-        else if trimmed.hasPrefix("/") { expanded = trimmed }
-        else { return nil }
+        guard trimmed.hasPrefix("~/") || trimmed.hasPrefix("/") else { return nil }
+        let expanded = (trimmed as NSString).expandingTildeInPath
 
         return FileManager.default.fileExists(atPath: expanded) ? expanded : nil
     }
