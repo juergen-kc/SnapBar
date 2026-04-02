@@ -1,4 +1,4 @@
-import AppKit
+import Foundation
 
 /// Protocol for toolbar actions
 protocol Action: Identifiable, Sendable {
