@@ -62,10 +62,10 @@ final class AppState {
         self.isEnabled = defaults.object(forKey: "isEnabled") as? Bool ?? true
         self.appearAutomatically = defaults.object(forKey: "appearAutomatically") as? Bool ?? true
         self.launchAtLogin = SMAppService.mainApp.status == .enabled
-        self.toolbarPosition = ToolbarPosition(rawValue: defaults.string(forKey: "toolbarPosition") ?? "") ?? .above
-        self.toolbarSize = ToolbarSize(rawValue: defaults.string(forKey: "toolbarSize") ?? "") ?? .medium
+        self.toolbarPosition = defaults.string(forKey: "toolbarPosition").flatMap(ToolbarPosition.init) ?? .above
+        self.toolbarSize = defaults.string(forKey: "toolbarSize").flatMap(ToolbarSize.init) ?? .medium
         self.excludedApps = Set(defaults.stringArray(forKey: "excludedApps") ?? [])
-        self.searchEngine = SearchEngine(rawValue: defaults.string(forKey: "searchEngine") ?? "") ?? .google
+        self.searchEngine = defaults.string(forKey: "searchEngine").flatMap(SearchEngine.init) ?? .google
         self.enabledActions = Self.loadActions()
     }
 

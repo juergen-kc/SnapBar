@@ -28,7 +28,7 @@ struct CutAction: Action {
     func execute(with selection: TextSelection) {
         copyToClipboard(selection.text)
         // Simulate ⌘X via key event to let the app handle deletion
-        simulateKeyPress(keyCode: carbonKeyCode(for: "x")!, modifiers: .maskCommand)
+        simulateKeyPress(keyCode: carbonKeyCodes["x"]!, modifiers: .maskCommand)
     }
 }
 
@@ -44,7 +44,7 @@ struct PasteAction: Action {
     }
 
     func execute(with selection: TextSelection) {
-        simulateKeyPress(keyCode: carbonKeyCode(for: "v")!, modifiers: .maskCommand)
+        simulateKeyPress(keyCode: carbonKeyCodes["v"]!, modifiers: .maskCommand)
     }
 }
 
