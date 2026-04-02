@@ -1,5 +1,3 @@
-import Foundation
-
 /// Protocol for toolbar actions
 protocol Action: Identifiable, Sendable {
     var id: String { get }
