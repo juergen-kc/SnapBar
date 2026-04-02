@@ -8,8 +8,7 @@ enum AccessibilityHelper {
     }
 
     static func requestAccess() {
-        let options = ["AXTrustedCheckOptionPrompt": true] as CFDictionary
-        AXIsProcessTrustedWithOptions(options)
+        AXIsProcessTrustedWithOptions(["AXTrustedCheckOptionPrompt": true] as CFDictionary)
     }
 
     /// Read an accessibility attribute, returning nil on failure.

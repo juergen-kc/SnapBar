@@ -165,7 +165,7 @@ struct ActionsSettingsView: View {
 
 struct PluginsSettingsView: View {
     @State private var plugins: [PluginDefinition] = []
-    @State private var snippetText: String = ""
+    @State private var snippetText = ""
     @State private var snippetError: String?
     @State private var snippetSuccess: String?
 

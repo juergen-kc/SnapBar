@@ -3,15 +3,14 @@ import Foundation
 /// Installs the starter plugin pack into ~/.snapbar/plugins/ if it's empty.
 enum StarterPlugins {
     static func installIfNeeded() {
-        let dir = PluginLoader.pluginsDirectory
         PluginLoader.ensureDirectory()
 
         // Only install if the directory is empty
-        let existing = (try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? []
+        let existing = (try? FileManager.default.contentsOfDirectory(atPath: PluginLoader.pluginsDirectory.path)) ?? []
         guard !existing.contains(where: { PluginLoader.isPluginFile(($0 as NSString).pathExtension) }) else { return }
 
         for (filename, content) in plugins {
-            let url = dir.appendingPathComponent(filename)
+            let url = PluginLoader.pluginsDirectory.appendingPathComponent(filename)
             try? content.write(to: url, atomically: true, encoding: .utf8)
         }
     }

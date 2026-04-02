@@ -48,7 +48,7 @@ struct ToolbarView: View {
 
     @Namespace private var toolbarNamespace
     @Environment(AppState.self) private var appState
-    @State private var focusedIndex: Int = 0
+    @State private var focusedIndex = 0
     @State private var expandedGroup: String?
 
     private var toolbarItems: [ToolbarItem] {

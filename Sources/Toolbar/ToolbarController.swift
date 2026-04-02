@@ -45,7 +45,6 @@ final class ToolbarController {
 
         let hostingView = NSHostingView(rootView: toolbarView)
         let fittingSize = hostingView.fittingSize
-        hostingView.frame.size = fittingSize
         panel.contentView = hostingView
         panel.setContentSize(fittingSize)
 

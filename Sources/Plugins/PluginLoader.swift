@@ -2,10 +2,9 @@ import Foundation
 
 /// Loads plugin definitions from ~/.snapbar/plugins/
 enum PluginLoader {
-    static let pluginsDirectory: URL = {
-        let home = FileManager.default.homeDirectoryForCurrentUser
-        return home.appendingPathComponent(".snapbar/plugins", isDirectory: true)
-    }()
+    static let pluginsDirectory: URL =
+        FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent(".snapbar/plugins", isDirectory: true)
 
     /// Ensure the plugins directory exists
     static func ensureDirectory() {

@@ -8,7 +8,7 @@ final class SelectionMonitor: @unchecked Sendable {
     private let onSelection: @MainActor (TextSelection) -> Void
 
     private var pollingTimer: Timer?
-    private var lastSelectedText: String = ""
+    private var lastSelectedText = ""
     private var lastMouseLocation: CGPoint = .zero
 
     init(appState: AppState, onSelection: @MainActor @escaping (TextSelection) -> Void) {
