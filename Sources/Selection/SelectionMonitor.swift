@@ -52,10 +52,9 @@ final class SelectionMonitor: @unchecked Sendable {
         // Skip whitespace-only selections
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
 
-        let cappedText = String(text.prefix(10_000))
-        DebugLog.log("Selection detected: '\(cappedText.prefix(40))'")
+        DebugLog.log("Selection detected: '\(text.prefix(40))'")
         onSelection(TextSelection(
-            text: cappedText,
+            text: String(text.prefix(10_000)),
             bounds: AccessibilityHelper.selectedTextBoundsOrMouse(),
             isEditable: AccessibilityHelper.isEditable()
         ))

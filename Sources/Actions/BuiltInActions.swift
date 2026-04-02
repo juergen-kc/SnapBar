@@ -92,18 +92,12 @@ struct OpenLinkAction: Action {
         }
 
         // Try adding https:// for URL-like text
-        let urlPattern = #"^[\w][\w.-]*\.[a-zA-Z]{2,}(/\S*)?$"#
-        if trimmed.range(of: urlPattern, options: .regularExpression) != nil {
+        if trimmed.range(of: #"^[\w][\w.-]*\.[a-zA-Z]{2,}(/\S*)?$"#, options: .regularExpression) != nil {
             return URL(string: "https://\(trimmed)")
         }
 
         // Try to find a URL within the text using NSDataDetector
-        let range = NSRange(trimmed.startIndex..., in: trimmed)
-        if let match = Self.linkDetector?.firstMatch(in: trimmed, range: range), let url = match.url {
-            return url
-        }
-
-        return nil
+        return Self.linkDetector?.firstMatch(in: trimmed, range: NSRange(trimmed.startIndex..., in: trimmed))?.url
     }
 }
 
