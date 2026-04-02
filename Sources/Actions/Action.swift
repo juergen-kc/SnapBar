@@ -31,7 +31,7 @@ enum ActionRegistry {
     }
 
     static func action(for id: String) -> (any Action)? {
-        (builtInActions + pluginActions).first { $0.id == id }
+        builtInActions.first { $0.id == id } ?? pluginActions.first { $0.id == id }
     }
 
     static func applicableActions(for selection: TextSelection, config: [ActionConfig]) -> [any Action] {

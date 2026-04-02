@@ -198,7 +198,7 @@ struct PluginsSettingsView: View {
 
                 Button("Reload Plugins") {
                     ActionRegistry.reloadPlugins()
-                    plugins = PluginLoader.loadAll()
+                    plugins = ActionRegistry.pluginActions.map(\.definition)
                 }
             }
 
@@ -308,7 +308,7 @@ struct PluginsSettingsView: View {
         do {
             try PluginLoader.install(definition)
             ActionRegistry.reloadPlugins()
-            plugins = PluginLoader.loadAll()
+            plugins = ActionRegistry.pluginActions.map(\.definition)
             snippetSuccess = "Installed \"\(definition.name)\" successfully!"
             snippetText = ""
         } catch {
