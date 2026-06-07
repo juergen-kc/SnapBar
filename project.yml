@@ -11,8 +11,8 @@ settings:
     SWIFT_VERSION: "6.0"
     MACOSX_DEPLOYMENT_TARGET: "26.0"
     PRODUCT_BUNDLE_IDENTIFIER: com.snapbar.app
-    MARKETING_VERSION: "1.0.0"
-    CURRENT_PROJECT_VERSION: "1"
+    MARKETING_VERSION: "1.1"
+    CURRENT_PROJECT_VERSION: "2"
     INFOPLIST_FILE: Resources/Info.plist
     CODE_SIGN_ENTITLEMENTS: Resources/SnapBar.entitlements
     CODE_SIGN_STYLE: Automatic
@@ -37,5 +37,19 @@ targets:
     info:
       path: Resources/Info.plist
       properties:
+        CFBundleShortVersionString: "1.1"
+        CFBundleVersion: "2"
         LSUIElement: true
         NSAccessibilityUsageDescription: "SnapBar needs Accessibility access to detect text selection and read selected text in other applications."
+  SnapBarTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests
+        type: group
+    dependencies:
+      - target: SnapBar
+    settings:
+      base:
+        PRODUCT_NAME: SnapBarTests
+        PRODUCT_BUNDLE_IDENTIFIER: com.snapbar.app.tests

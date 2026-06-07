@@ -240,7 +240,8 @@ func copyToClipboard(_ text: String) {
 /// Paste text into the focused field, restoring the previous clipboard after a short delay.
 /// If the selection is not editable, just copies the text to the clipboard.
 func pasteReplacingSelection(_ text: String, isEditable: Bool) {
-    let previousClipboard = NSPasteboard.general.string(forType: .string)
+    let pasteboard = NSPasteboard.general
+    let previousClipboard = PasteboardSnapshot(pasteboard: pasteboard)
 
     copyToClipboard(text)
 
@@ -248,7 +249,7 @@ func pasteReplacingSelection(_ text: String, isEditable: Bool) {
         simulateKeyPress(keyCode: carbonKeyCodes["v"]!, modifiers: .maskCommand)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            if let previousClipboard { copyToClipboard(previousClipboard) }
+            previousClipboard.restore(to: pasteboard)
         }
     }
 }

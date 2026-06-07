@@ -44,6 +44,7 @@ final class ToolbarController {
         let fittingSize = hostingView.fittingSize
         panel.contentView = hostingView
         panel.setContentSize(fittingSize)
+        panel.visibleContentHeight = fittingSize.height - 30 // exclude tooltip padding
 
         panel.setFrameOrigin(calculatePosition(
             selectionBounds: selection.bounds,
@@ -68,7 +69,8 @@ final class ToolbarController {
 
     /// Summon toolbar via keyboard shortcut on current selection
     func summonViaKeyboard() {
-        guard let text = AccessibilityHelper.selectedText(), !text.isEmpty else { return }
+        let text = AccessibilityHelper.selectedTextViaAX() ?? AccessibilityHelper.selectedTextViaClipboard()
+        guard let text, !text.isEmpty else { return }
         show(for: TextSelection(
             text: text,
             bounds: AccessibilityHelper.selectedTextBoundsOrMouse(),
@@ -85,8 +87,10 @@ final class ToolbarController {
             $0.duration = 0.08
             panel.animator().alphaValue = 0
         } completionHandler: { [weak self] in
-            panel.orderOut(nil)
-            self?.panel = nil
+            Task { @MainActor in
+                panel.orderOut(nil)
+                self?.panel = nil
+            }
         }
     }
 
@@ -120,10 +124,15 @@ final class ToolbarController {
         // Convert AX coordinates (top-left origin) to AppKit screen coordinates (bottom-left origin)
         let selectionScreenY = screen.frame.origin.y + screen.frame.height - selectionBounds.origin.y
 
+        // The toolbarSize includes 30pt bottom padding for tooltip overflow.
+        // Subtract it so positioning is based on the visible toolbar height.
+        let tooltipPadding: CGFloat = 30
+        let visibleHeight = toolbarSize.height - tooltipPadding
+
         var x = selectionBounds.origin.x + (selectionBounds.width - toolbarSize.width) / 2
         var y = switch position {
-        case .above: selectionScreenY + gap
-        case .below: selectionScreenY - selectionBounds.height - toolbarSize.height - gap
+        case .above: selectionScreenY + gap + tooltipPadding
+        case .below: selectionScreenY - selectionBounds.height - visibleHeight - gap
         }
 
         x = max(screenFrame.minX + 4, min(x, screenFrame.maxX - toolbarSize.width - 4))
@@ -143,9 +152,10 @@ final class ToolbarController {
     // MARK: - Dismiss Monitors
 
     private func installDismissMonitors() {
-        dismissMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
-            guard let self, let panel = self.panel,
-                  panel.contentView?.bounds.contains(panel.convertPoint(fromScreen: event.locationInWindow)) != true else { return }
+        dismissMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
+            guard let self, let panel = self.panel else { return }
+            // Only keep the toolbar if the click is inside the visible toolbar area (not tooltip padding)
+            guard !panel.isPointInVisibleToolbar(NSEvent.mouseLocation) else { return }
             self.dismiss()
         }
 

@@ -73,6 +73,7 @@ struct ToolbarView: View {
             .glassEffect(.regular.interactive(), in: .capsule)
         }
         .fixedSize()
+        .padding(.bottom, 30) // Reserve space below for tooltip overlays
         .onKeyPress(.leftArrow) {
             guard keyboardMode else { return .ignored }
             focusedIndex = max(0, focusedIndex - 1)
@@ -132,7 +133,7 @@ struct ToolbarView: View {
             }
         }
         .buttonStyle(.plain)
-        .help(action.title)
+        .glassTooltip(action.title)
     }
 
     private func groupButton(name: String, icon: String, actions: [any Action], index: Int) -> some View {
@@ -154,7 +155,7 @@ struct ToolbarView: View {
             }
         }
         .buttonStyle(.plain)
-        .help(name)
+        .glassTooltip(name)
         .popover(isPresented: Binding(
             get: { expandedGroup == name },
             set: { expandedGroup = $0 ? name : nil }
@@ -180,5 +181,69 @@ struct ToolbarView: View {
             }
             .padding(6)
         }
+    }
+}
+
+// MARK: - Liquid Glass tooltip
+
+/// Tracks mouse hover via NSTrackingArea (.activeAlways) so it works on non-activating panels.
+private struct HoverTracker: NSViewRepresentable {
+    @Binding var isHovered: Bool
+
+    func makeNSView(context: Context) -> HoverNSView {
+        let view = HoverNSView()
+        view.onHover = { isHovered in
+            Task { @MainActor in self.isHovered = isHovered }
+        }
+        return view
+    }
+
+    func updateNSView(_ nsView: HoverNSView, context: Context) {}
+
+    final class HoverNSView: NSView {
+        var onHover: ((Bool) -> Void)?
+
+        override func updateTrackingAreas() {
+            super.updateTrackingAreas()
+            for area in trackingAreas { removeTrackingArea(area) }
+            addTrackingArea(NSTrackingArea(
+                rect: bounds,
+                options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect],
+                owner: self
+            ))
+        }
+
+        override func mouseEntered(with event: NSEvent) { onHover?(true) }
+        override func mouseExited(with event: NSEvent) { onHover?(false) }
+    }
+}
+
+private struct GlassTooltip: ViewModifier {
+    let text: String
+    @State private var isHovered = false
+
+    func body(content: Content) -> some View {
+        content
+            .background { HoverTracker(isHovered: $isHovered) }
+            .overlay(alignment: .bottom) {
+                if isHovered {
+                    Text(text)
+                        .font(.caption)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .glassEffect(.regular, in: .capsule)
+                        .fixedSize()
+                        .offset(y: 30)
+                        .allowsHitTesting(false)
+                        .transition(.opacity.combined(with: .scale(scale: 0.9)))
+                }
+            }
+            .animation(.easeOut(duration: 0.15), value: isHovered)
+    }
+}
+
+extension View {
+    func glassTooltip(_ text: String) -> some View {
+        modifier(GlassTooltip(text: text))
     }
 }

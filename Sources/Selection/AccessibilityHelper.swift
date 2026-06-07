@@ -1,5 +1,36 @@
 import AppKit
 
+struct PasteboardSnapshot {
+    private struct Entry {
+        let type: NSPasteboard.PasteboardType
+        let data: Data
+    }
+
+    private let items: [[Entry]]
+
+    init(pasteboard: NSPasteboard) {
+        items = pasteboard.pasteboardItems?.map { item in
+            item.types.compactMap { type in
+                item.data(forType: type).map { Entry(type: type, data: $0) }
+            }
+        } ?? []
+    }
+
+    func restore(to pasteboard: NSPasteboard) {
+        pasteboard.clearContents()
+        guard !items.isEmpty else { return }
+
+        let restoredItems = items.map { entries in
+            let item = NSPasteboardItem()
+            for entry in entries {
+                item.setData(entry.data, forType: entry.type)
+            }
+            return item
+        }
+        pasteboard.writeObjects(restoredItems)
+    }
+}
+
 enum AccessibilityHelper {
     static func isTrusted() -> Bool {
         AXIsProcessTrusted()
@@ -16,10 +47,15 @@ enum AccessibilityHelper {
         return value
     }
 
+    /// Get the AXApplication element for the frontmost app.
+    private static func frontmostAXApp() -> AXUIElement? {
+        guard let app = NSWorkspace.shared.frontmostApplication else { return nil }
+        return AXUIElementCreateApplication(app.processIdentifier)
+    }
+
     /// Get the currently focused UI element
     static func focusedElement() -> AXUIElement? {
-        guard let app = NSWorkspace.shared.frontmostApplication else { return nil }
-        let axApp = AXUIElementCreateApplication(app.processIdentifier)
+        guard let axApp = frontmostAXApp() else { return nil }
         // AXUIElement is a CFTypeRef — force cast is required for CF types
         return axAttribute(axApp, kAXFocusedUIElementAttribute as CFString) as! AXUIElement?
     }
@@ -30,19 +66,60 @@ enum AccessibilityHelper {
             ?? axAttribute(AXUIElementCreateSystemWide(), kAXFocusedUIElementAttribute as CFString) as! AXUIElement?
     }
 
-    /// Get the selected text from the focused element
-    static func selectedText(from element: AXUIElement? = nil) -> String? {
-        guard let target = resolveTarget(element) else { return nil }
+    /// Try to read kAXSelectedTextAttribute from an element.
+    private static func readSelectedText(_ element: AXUIElement) -> String? {
+        guard let text = axAttribute(element, kAXSelectedTextAttribute as CFString) as? String,
+              !text.isEmpty else { return nil }
+        return text
+    }
 
-        if let text = axAttribute(target, kAXSelectedTextAttribute as CFString) as? String, !text.isEmpty {
+    // MARK: - Clipboard-based selection reading
+
+    /// Simulate Cmd+C to copy selected text, read it from the pasteboard, then restore the previous content.
+    /// Used as a fallback for apps (Safari, Chrome) that don't expose AXSelectedText.
+    static func selectedTextViaClipboard() -> String? {
+        let pb = NSPasteboard.general
+        let previousCount = pb.changeCount
+        let snapshot = PasteboardSnapshot(pasteboard: pb)
+
+        // Simulate Cmd+C
+        let source = CGEventSource(stateID: .combinedSessionState)
+        guard let keyDown = CGEvent(keyboardEventSource: source, virtualKey: 0x08, keyDown: true),
+              let keyUp = CGEvent(keyboardEventSource: source, virtualKey: 0x08, keyDown: false) else { return nil }
+        keyDown.flags = .maskCommand
+        keyUp.flags = .maskCommand
+        keyDown.post(tap: .cghidEventTap)
+        keyUp.post(tap: .cghidEventTap)
+
+        // Brief pause for the copy to complete
+        usleep(50_000) // 50ms
+
+        // Read the new content
+        let newCount = pb.changeCount
+        let text: String? = (newCount != previousCount) ? pb.string(forType: .string) : nil
+
+        snapshot.restore(to: pb)
+
+        return text?.isEmpty == true ? nil : text
+    }
+
+    // MARK: - Public API
+
+    /// Read selected text via the Accessibility API (fast, no side effects).
+    /// Returns nil for browsers that don't expose AXSelectedText (Safari, Chrome on macOS 26+).
+    static func selectedTextViaAX(from element: AXUIElement? = nil) -> String? {
+        // Direct read from focused element (works for most native apps)
+        if let target = resolveTarget(element), let text = readSelectedText(target) {
             return text
         }
 
-        // Fallback: try the system-wide element directly (may differ from resolveTarget's result)
-        guard let systemFocused = axAttribute(AXUIElementCreateSystemWide(), kAXFocusedUIElementAttribute as CFString),
-              let fallback = axAttribute(systemFocused as! AXUIElement, kAXSelectedTextAttribute as CFString) as? String,
-              !fallback.isEmpty else { return nil }
-        return fallback
+        // System-wide focused element
+        if let sw = axAttribute(AXUIElementCreateSystemWide(), kAXFocusedUIElementAttribute as CFString) {
+            // CF types require force cast
+            if let text = readSelectedText(sw as! AXUIElement) { return text }
+        }
+
+        return nil
     }
 
     /// Get the bounds of the selected text in screen coordinates

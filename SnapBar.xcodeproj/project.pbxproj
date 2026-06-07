@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2A14AFF0FC9F5C42B6484862 /* SnapBarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C791146370E2DA4B1B870DDF /* SnapBarApp.swift */; };
 		345319E07AD7A35FF17ACB3D /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = E55CA166A530BBAD47AB8F59 /* Action.swift */; };
+		375522719CCF75FFD310FC10 /* SelectionBehaviorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5BCC48695B92F0AB589454 /* SelectionBehaviorTests.swift */; };
 		3837A1FED05243C254360AF0 /* PluginDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE1BE40ED4BC8BF777CDFCC /* PluginDefinition.swift */; };
 		41895BD78CF3F1D0CF30E557 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 388B840CF0D52329CB958C3F /* Assets.xcassets */; };
 		42E18A5383B0353AEC8062E3 /* PluginLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 499B6470695435B301391173 /* PluginLoader.swift */; };
@@ -28,6 +29,16 @@
 		FDF1B4C9E8597BDC2509AA93 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2284B69C0DB065940C935681 /* SettingsView.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		1101BA317B7013DD8F0800EE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D688D8188BF4E8F95A10EA17 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0669134787ECFA5AE3CD5994;
+			remoteInfo = SnapBar;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		049D29F718F5D24B28B037A9 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		0FE1BE40ED4BC8BF777CDFCC /* PluginDefinition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginDefinition.swift; sourceTree = "<group>"; };
@@ -41,11 +52,13 @@
 		4F79F7A1E6182EBB21B254B4 /* BuiltInActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuiltInActions.swift; sourceTree = "<group>"; };
 		5C2E809FFB265574F58BFE94 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7E629BDA8373E4671B0DED47 /* PluginDirectoryWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginDirectoryWatcher.swift; sourceTree = "<group>"; };
+		97F8DCFB40A32955808679B4 /* SnapBarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SnapBarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9CF1E2B75ED0FF66B53E0031 /* AccessibilityHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityHelper.swift; sourceTree = "<group>"; };
 		B12D89FECB5F071797FBA157 /* StarterPlugins.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarterPlugins.swift; sourceTree = "<group>"; };
 		C791146370E2DA4B1B870DDF /* SnapBarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapBarApp.swift; sourceTree = "<group>"; };
 		C8D0723BB0545D5BF75E0C1C /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		CB3FBB14410C576A31A4A48E /* ToolbarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarView.swift; sourceTree = "<group>"; };
+		CF5BCC48695B92F0AB589454 /* SelectionBehaviorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionBehaviorTests.swift; sourceTree = "<group>"; };
 		D0BD9E5BA5564F384619F6B1 /* ToolbarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarController.swift; sourceTree = "<group>"; };
 		DC14879599D973EBD041FA32 /* SnapBar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SnapBar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E55CA166A530BBAD47AB8F59 /* Action.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
@@ -107,8 +120,17 @@
 			isa = PBXGroup;
 			children = (
 				DC14879599D973EBD041FA32 /* SnapBar.app */,
+				97F8DCFB40A32955808679B4 /* SnapBarTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		8BB3ED04FC62390272D2DE62 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				CF5BCC48695B92F0AB589454 /* SelectionBehaviorTests.swift */,
+			);
+			path = Tests;
 			sourceTree = "<group>";
 		};
 		F0B097E66523FCAFD869485E /* Resources */ = {
@@ -134,6 +156,7 @@
 			children = (
 				F0B097E66523FCAFD869485E /* Resources */,
 				1524F66002476DC0648A3115 /* Sources */,
+				8BB3ED04FC62390272D2DE62 /* Tests */,
 				8A5DA4736B90A6915B18D6AA /* Products */,
 			);
 			sourceTree = "<group>";
@@ -171,6 +194,24 @@
 			productReference = DC14879599D973EBD041FA32 /* SnapBar.app */;
 			productType = "com.apple.product-type.application";
 		};
+		FAEB0240AE2F50B74F2DB2EA /* SnapBarTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 04F6AD26B4A6F1C19762FD59 /* Build configuration list for PBXNativeTarget "SnapBarTests" */;
+			buildPhases = (
+				922E220B9451D825DAC5C392 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				FEDBD9AF99EC57ACE8E577F3 /* PBXTargetDependency */,
+			);
+			name = SnapBarTests;
+			packageProductDependencies = (
+			);
+			productName = SnapBarTests;
+			productReference = 97F8DCFB40A32955808679B4 /* SnapBarTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -181,6 +222,9 @@
 				LastUpgradeCheck = 2640;
 				TargetAttributes = {
 					0669134787ECFA5AE3CD5994 = {
+						ProvisioningStyle = Automatic;
+					};
+					FAEB0240AE2F50B74F2DB2EA = {
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -200,6 +244,7 @@
 			projectRoot = "";
 			targets = (
 				0669134787ECFA5AE3CD5994 /* SnapBar */,
+				FAEB0240AE2F50B74F2DB2EA /* SnapBarTests */,
 			);
 		};
 /* End PBXProject section */
@@ -241,9 +286,42 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		922E220B9451D825DAC5C392 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				375522719CCF75FFD310FC10 /* SelectionBehaviorTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		FEDBD9AF99EC57ACE8E577F3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0669134787ECFA5AE3CD5994 /* SnapBar */;
+			targetProxy = 1101BA317B7013DD8F0800EE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		048E7F26C69E093E38CCD34A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapbar.app.tests;
+				PRODUCT_NAME = SnapBarTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SnapBar.app/Contents/MacOS/SnapBar";
+			};
+			name = Debug;
+		};
 		6EDF71216DB85DAEF0FCCA74 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -255,6 +333,23 @@
 					"@executable_path/../Frameworks",
 				);
 				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		882D8E4D851B38464E606DE2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapbar.app.tests;
+				PRODUCT_NAME = SnapBarTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SnapBar.app/Contents/MacOS/SnapBar";
 			};
 			name = Release;
 		};
@@ -294,7 +389,7 @@
 				CODE_SIGN_ENTITLEMENTS = Resources/SnapBar.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -309,7 +404,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = Resources/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.snapbar.app;
@@ -371,7 +466,7 @@
 				CODE_SIGN_ENTITLEMENTS = Resources/SnapBar.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -392,7 +487,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = Resources/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -408,6 +503,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		04F6AD26B4A6F1C19762FD59 /* Build configuration list for PBXNativeTarget "SnapBarTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				048E7F26C69E093E38CCD34A /* Debug */,
+				882D8E4D851B38464E606DE2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		462E1AAC32A78265E6C8AA95 /* Build configuration list for PBXNativeTarget "SnapBar" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
