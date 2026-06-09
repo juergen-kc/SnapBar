@@ -1,5 +1,28 @@
 import SwiftUI
 
+struct ToolbarSurfaceStyle: Equatable {
+    let fallbackFillOpacity: Double
+    let strokeOpacity: Double
+    let shadowOpacity: Double
+    let shadowRadius: CGFloat
+    let shadowYOffset: CGFloat
+
+    static let floatingToolbar = ToolbarSurfaceStyle(
+        fallbackFillOpacity: 0.72,
+        strokeOpacity: 0.16,
+        shadowOpacity: 0.24,
+        shadowRadius: 16,
+        shadowYOffset: 8
+    )
+
+    var hasVisibleFallback: Bool {
+        fallbackFillOpacity > 0
+            && strokeOpacity > 0
+            && shadowOpacity > 0
+            && shadowRadius > 0
+    }
+}
+
 /// Represents either a single action or a group of actions in the toolbar.
 enum ToolbarItem: Identifiable {
     case single(any Action)
@@ -51,6 +74,8 @@ struct ToolbarView: View {
     @State private var focusedIndex = 0
     @State private var expandedGroup: String?
 
+    private let surfaceStyle = ToolbarSurfaceStyle.floatingToolbar
+
     private var toolbarItems: [ToolbarItem] {
         ToolbarItem.build(from: actions)
     }
@@ -70,6 +95,21 @@ struct ToolbarView: View {
                 }
             }
             .padding(5)
+            .background {
+                Capsule()
+                    .fill(.regularMaterial)
+                Capsule()
+                    .fill(Color(nsColor: .controlBackgroundColor).opacity(surfaceStyle.fallbackFillOpacity))
+            }
+            .overlay {
+                Capsule()
+                    .strokeBorder(Color.primary.opacity(surfaceStyle.strokeOpacity), lineWidth: 1)
+            }
+            .shadow(
+                color: .black.opacity(surfaceStyle.shadowOpacity),
+                radius: surfaceStyle.shadowRadius,
+                y: surfaceStyle.shadowYOffset
+            )
             .glassEffect(.regular.interactive(), in: .capsule)
         }
         .fixedSize()

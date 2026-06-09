@@ -15,6 +15,7 @@
 		42E18A5383B0353AEC8062E3 /* PluginLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 499B6470695435B301391173 /* PluginLoader.swift */; };
 		4580BCF5C6D50B6D7CBB5A0B /* PluginDirectoryWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E629BDA8373E4671B0DED47 /* PluginDirectoryWatcher.swift */; };
 		45FE72D35DE85CA2DED27268 /* BuiltInActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F79F7A1E6182EBB21B254B4 /* BuiltInActions.swift */; };
+		476B435EA5DCFFFA9AA6AAFF /* ToolbarSurfaceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33F6BB8280D8B089881FDA36 /* ToolbarSurfaceTests.swift */; };
 		48EA95773FCA00E05C6EBE1F /* ToolbarPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D01B7B019C7F83D7ACA696 /* ToolbarPanel.swift */; };
 		5A6EEF450EDD389F129A7A84 /* StarterPlugins.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12D89FECB5F071797FBA157 /* StarterPlugins.swift */; };
 		5E6327881F0D67959CC972D3 /* ToolbarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0BD9E5BA5564F384619F6B1 /* ToolbarController.swift */; };
@@ -47,6 +48,7 @@
 		20B229DF9B9490A4AB6FDC61 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		2284B69C0DB065940C935681 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		24D01B7B019C7F83D7ACA696 /* ToolbarPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarPanel.swift; sourceTree = "<group>"; };
+		33F6BB8280D8B089881FDA36 /* ToolbarSurfaceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarSurfaceTests.swift; sourceTree = "<group>"; };
 		388B840CF0D52329CB958C3F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		499B6470695435B301391173 /* PluginLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginLoader.swift; sourceTree = "<group>"; };
 		4F79F7A1E6182EBB21B254B4 /* BuiltInActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuiltInActions.swift; sourceTree = "<group>"; };
@@ -129,6 +131,7 @@
 			isa = PBXGroup;
 			children = (
 				CF5BCC48695B92F0AB589454 /* SelectionBehaviorTests.swift */,
+				33F6BB8280D8B089881FDA36 /* ToolbarSurfaceTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -291,6 +294,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				375522719CCF75FFD310FC10 /* SelectionBehaviorTests.swift in Sources */,
+				476B435EA5DCFFFA9AA6AAFF /* ToolbarSurfaceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
