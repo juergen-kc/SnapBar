@@ -65,29 +65,31 @@ struct ToolbarView: View {
     @Namespace private var toolbarNamespace
     @Environment(AppState.self) private var appState
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
-    @State private var focusedIndex = 0
+    @State private var focusedItemID: String?
     @State private var expandedGroup: String?
 
     static let tooltipPadding: CGFloat = 30
     private static let surfaceStyle = ToolbarSurfaceStyle.floatingToolbar
 
     init(actions: [any Action], selection: TextSelection, onDismiss: @escaping () -> Void, keyboardMode: Bool) {
-        self.toolbarItems = ToolbarItem.build(from: actions)
+        let items = ToolbarItem.build(from: actions)
+        self.toolbarItems = items
         self.selection = selection
         self.onDismiss = onDismiss
         self.keyboardMode = keyboardMode
+        self._focusedItemID = State(initialValue: keyboardMode ? items.first?.id : nil)
     }
 
     var body: some View {
         GlassEffectContainer(spacing: 4) {
             HStack(spacing: 4) {
-                ForEach(Array(toolbarItems.enumerated()), id: \.element.id) { index, item in
+                ForEach(toolbarItems) { item in
                     switch item {
                     case .single(let action):
-                        actionButton(for: action, index: index)
+                        actionButton(for: action)
                             .glassEffectID(action.id, in: toolbarNamespace)
                     case .group(let name, let icon, let groupActions):
-                        groupButton(name: name, icon: icon, actions: groupActions, index: index)
+                        groupButton(name: name, icon: icon, actions: groupActions)
                             .glassEffectID("group.\(name)", in: toolbarNamespace)
                     }
                 }
@@ -116,17 +118,27 @@ struct ToolbarView: View {
         .padding(.bottom, Self.tooltipPadding)
         .onKeyPress(.leftArrow) {
             guard keyboardMode else { return .ignored }
-            focusedIndex = max(0, focusedIndex - 1)
+            if let id = focusedItemID,
+               let pos = toolbarItems.firstIndex(where: { $0.id == id }),
+               pos > 0 {
+                focusedItemID = toolbarItems[pos - 1].id
+            }
             return .handled
         }
         .onKeyPress(.rightArrow) {
             guard keyboardMode else { return .ignored }
-            focusedIndex = min(toolbarItems.count - 1, focusedIndex + 1)
+            if let id = focusedItemID,
+               let pos = toolbarItems.firstIndex(where: { $0.id == id }),
+               pos < toolbarItems.count - 1 {
+                focusedItemID = toolbarItems[pos + 1].id
+            }
             return .handled
         }
         .onKeyPress(.return) {
-            guard keyboardMode, toolbarItems.indices.contains(focusedIndex) else { return .ignored }
-            switch toolbarItems[focusedIndex] {
+            guard keyboardMode,
+                  let id = focusedItemID,
+                  let item = toolbarItems.first(where: { $0.id == id }) else { return .ignored }
+            switch item {
             case .single(let action):
                 action.execute(with: selection)
                 onDismiss()
@@ -141,8 +153,8 @@ struct ToolbarView: View {
         }
     }
 
-    private func isFocused(_ index: Int) -> Bool {
-        keyboardMode && index == focusedIndex
+    private func isFocused(_ id: String) -> Bool {
+        keyboardMode && id == focusedItemID
     }
 
     /// Apply focus highlight styling (foreground color + background tint) used by both action and group buttons.
@@ -158,12 +170,12 @@ struct ToolbarView: View {
             .contentShape(Rectangle())
     }
 
-    private func actionButton(for action: any Action, index: Int) -> some View {
+    private func actionButton(for action: any Action) -> some View {
         Button {
             action.execute(with: selection)
             onDismiss()
         } label: {
-            focusHighlight(isFocused(index)) {
+            focusHighlight(isFocused(action.id)) {
                 Image(systemName: action.icon)
                     .font(.system(size: appState.toolbarSize.iconSize, weight: .medium))
                     .frame(
@@ -176,13 +188,13 @@ struct ToolbarView: View {
         .glassTooltip(action.title)
     }
 
-    private func groupButton(name: String, icon: String, actions: [any Action], index: Int) -> some View {
+    private func groupButton(name: String, icon: String, actions: [any Action]) -> some View {
         Button {
             withAnimation(.snappy(duration: 0.2)) {
                 expandedGroup = expandedGroup == name ? nil : name
             }
         } label: {
-            focusHighlight(isFocused(index)) {
+            focusHighlight(isFocused("group.\(name)")) {
                 HStack(spacing: 2) {
                     Image(systemName: icon)
                         .font(.system(size: appState.toolbarSize.iconSize, weight: .medium))
