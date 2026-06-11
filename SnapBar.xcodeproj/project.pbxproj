@@ -10,6 +10,8 @@
 		2A14AFF0FC9F5C42B6484862 /* SnapBarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C791146370E2DA4B1B870DDF /* SnapBarApp.swift */; };
 		345319E07AD7A35FF17ACB3D /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = E55CA166A530BBAD47AB8F59 /* Action.swift */; };
 		375522719CCF75FFD310FC10 /* SelectionBehaviorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5BCC48695B92F0AB589454 /* SelectionBehaviorTests.swift */; };
+		382054652FDB402E006A9D23 /* PluginLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 382054642FDB402E006A9D23 /* PluginLoaderTests.swift */; };
+		382054672FDB404B006A9D23 /* PluginActionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 382054662FDB404B006A9D23 /* PluginActionTests.swift */; };
 		3837A1FED05243C254360AF0 /* PluginDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE1BE40ED4BC8BF777CDFCC /* PluginDefinition.swift */; };
 		41895BD78CF3F1D0CF30E557 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 388B840CF0D52329CB958C3F /* Assets.xcassets */; };
 		42E18A5383B0353AEC8062E3 /* PluginLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 499B6470695435B301391173 /* PluginLoader.swift */; };
@@ -49,6 +51,8 @@
 		2284B69C0DB065940C935681 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		24D01B7B019C7F83D7ACA696 /* ToolbarPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarPanel.swift; sourceTree = "<group>"; };
 		33F6BB8280D8B089881FDA36 /* ToolbarSurfaceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarSurfaceTests.swift; sourceTree = "<group>"; };
+		382054642FDB402E006A9D23 /* PluginLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginLoaderTests.swift; sourceTree = "<group>"; };
+		382054662FDB404B006A9D23 /* PluginActionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginActionTests.swift; sourceTree = "<group>"; };
 		388B840CF0D52329CB958C3F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		499B6470695435B301391173 /* PluginLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginLoader.swift; sourceTree = "<group>"; };
 		4F79F7A1E6182EBB21B254B4 /* BuiltInActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuiltInActions.swift; sourceTree = "<group>"; };
@@ -132,6 +136,8 @@
 			children = (
 				CF5BCC48695B92F0AB589454 /* SelectionBehaviorTests.swift */,
 				33F6BB8280D8B089881FDA36 /* ToolbarSurfaceTests.swift */,
+				382054642FDB402E006A9D23 /* PluginLoaderTests.swift */,
+				382054662FDB404B006A9D23 /* PluginActionTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -295,6 +301,8 @@
 			files = (
 				375522719CCF75FFD310FC10 /* SelectionBehaviorTests.swift in Sources */,
 				476B435EA5DCFFFA9AA6AAFF /* ToolbarSurfaceTests.swift in Sources */,
+				382054672FDB404B006A9D23 /* PluginActionTests.swift in Sources */,
+				382054652FDB402E006A9D23 /* PluginLoaderTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
