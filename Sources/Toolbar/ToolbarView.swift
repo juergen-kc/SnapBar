@@ -64,7 +64,7 @@ enum ToolbarItem: Identifiable {
 
 /// The floating toolbar view using Liquid Glass design.
 struct ToolbarView: View {
-    let actions: [any Action]
+    private let toolbarItems: [ToolbarItem]
     let selection: TextSelection
     let onDismiss: () -> Void
     let keyboardMode: Bool
@@ -74,10 +74,13 @@ struct ToolbarView: View {
     @State private var focusedIndex = 0
     @State private var expandedGroup: String?
 
-    private let surfaceStyle = ToolbarSurfaceStyle.floatingToolbar
+    private static let surfaceStyle = ToolbarSurfaceStyle.floatingToolbar
 
-    private var toolbarItems: [ToolbarItem] {
-        ToolbarItem.build(from: actions)
+    init(actions: [any Action], selection: TextSelection, onDismiss: @escaping () -> Void, keyboardMode: Bool) {
+        self.toolbarItems = ToolbarItem.build(from: actions)
+        self.selection = selection
+        self.onDismiss = onDismiss
+        self.keyboardMode = keyboardMode
     }
 
     var body: some View {
@@ -99,16 +102,16 @@ struct ToolbarView: View {
                 Capsule()
                     .fill(.regularMaterial)
                 Capsule()
-                    .fill(Color(nsColor: .controlBackgroundColor).opacity(surfaceStyle.fallbackFillOpacity))
+                    .fill(Color(nsColor: .controlBackgroundColor).opacity(Self.surfaceStyle.fallbackFillOpacity))
             }
             .overlay {
                 Capsule()
-                    .strokeBorder(Color.primary.opacity(surfaceStyle.strokeOpacity), lineWidth: 1)
+                    .strokeBorder(Color.primary.opacity(Self.surfaceStyle.strokeOpacity), lineWidth: 1)
             }
             .shadow(
-                color: .black.opacity(surfaceStyle.shadowOpacity),
-                radius: surfaceStyle.shadowRadius,
-                y: surfaceStyle.shadowYOffset
+                color: .black.opacity(Self.surfaceStyle.shadowOpacity),
+                radius: Self.surfaceStyle.shadowRadius,
+                y: Self.surfaceStyle.shadowYOffset
             )
             .glassEffect(.regular.interactive(), in: .capsule)
         }

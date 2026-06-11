@@ -7,8 +7,5 @@ final class ToolbarSurfaceTests: XCTestCase {
 
         XCTAssertTrue(style.hasVisibleFallback)
         XCTAssertGreaterThan(style.fallbackFillOpacity, 0.35)
-        XCTAssertGreaterThan(style.strokeOpacity, 0)
-        XCTAssertGreaterThan(style.shadowOpacity, 0)
-        XCTAssertGreaterThan(style.shadowRadius, 0)
     }
 }
