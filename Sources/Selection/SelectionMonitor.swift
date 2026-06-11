@@ -34,7 +34,7 @@ enum ClipboardFallbackPolicy {
     }
 }
 
-/// Monitors for text selection using Accessibility polling + global mouse events.
+/// Monitors for text selection using AX notifications (fast path) and polling (1Hz fallback).
 @MainActor
 final class SelectionMonitor: @unchecked Sendable {
     private let appState: AppState
@@ -44,6 +44,11 @@ final class SelectionMonitor: @unchecked Sendable {
     private var mouseUpMonitor: Any?
     private var selectionEmissionState = SelectionEmissionState()
 
+    // AX observer — instant notification when selected text changes in the focused element
+    private var axObserver: AXObserver?
+    private var observedPID: pid_t = 0
+    private var appActivationObserver: NSObjectProtocol?
+
     init(appState: AppState, onSelection: @MainActor @escaping (TextSelection) -> Void) {
         self.appState = appState
         self.onSelection = onSelection
@@ -52,25 +57,26 @@ final class SelectionMonitor: @unchecked Sendable {
     func start() {
         guard AccessibilityHelper.isTrusted() else { return }
 
-        // Poll at ~5Hz for AX-based selection (native apps like Terminal, TextEdit, etc.)
-        pollingTimer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { [weak self] _ in
+        // Fast path: AX notifications fire immediately when text is selected in apps that support them
+        startAXObserver()
+
+        // Fallback: 1Hz poll catches apps that don't post kAXSelectedTextChangedNotification
+        pollingTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 self?.checkViaAX()
             }
         }
 
-        // Global mouse-up monitor triggers clipboard fallback for browsers.
-        // Unlike polling pressedMouseButtons, this never misses a mouse release.
+        // Mouse-up monitor triggers clipboard fallback for browsers (Safari, Chrome on macOS 26+)
         mouseUpMonitor = NSEvent.addGlobalMonitorForEvents(matching: .leftMouseUp) { [weak self] _ in
-            let mousePos = NSEvent.mouseLocation  // capture at mouse-up time
+            let mousePos = NSEvent.mouseLocation
             Task { @MainActor in
-                // Brief delay for the app to finalize the selection
                 try? await Task.sleep(for: .milliseconds(100))
                 self?.checkViaClipboard(mousePosition: mousePos)
             }
         }
 
-        DebugLog.log("Selection polling started (5Hz)")
+        DebugLog.log("Selection monitoring started (AX notifications + 1Hz polling fallback)")
     }
 
     func stop() {
@@ -78,7 +84,83 @@ final class SelectionMonitor: @unchecked Sendable {
         pollingTimer = nil
         if let mouseUpMonitor { NSEvent.removeMonitor(mouseUpMonitor) }
         mouseUpMonitor = nil
+        stopAXObserver()
     }
+
+    // MARK: - AX Observer
+
+    private func startAXObserver() {
+        if let app = NSWorkspace.shared.frontmostApplication {
+            installAXObserver(for: app.processIdentifier)
+        }
+
+        appActivationObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didActivateApplicationNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else { return }
+            Task { @MainActor in
+                self?.installAXObserver(for: app.processIdentifier)
+            }
+        }
+    }
+
+    private func stopAXObserver() {
+        removeCurrentAXObserver()
+        if let obs = appActivationObserver {
+            NSWorkspace.shared.notificationCenter.removeObserver(obs)
+        }
+        appActivationObserver = nil
+    }
+
+    private func installAXObserver(for pid: pid_t) {
+        guard pid != observedPID else { return }
+        removeCurrentAXObserver()
+
+        var observer: AXObserver?
+        guard AXObserverCreate(pid, axNotificationCallback, &observer) == .success,
+              let observer else { return }
+
+        let appElement = AXUIElementCreateApplication(pid)
+        let context = Unmanaged.passUnretained(self).toOpaque()
+
+        // Watch the app element for focus changes so we can re-subscribe to the new focused element
+        AXObserverAddNotification(observer, appElement, kAXFocusedUIElementChangedNotification as CFString, context)
+
+        // Some apps post kAXSelectedTextChangedNotification on the app element
+        AXObserverAddNotification(observer, appElement, kAXSelectedTextChangedNotification as CFString, context)
+
+        // Subscribe to the currently focused element (most apps post at this level)
+        if let focused = AccessibilityHelper.focusedElement() {
+            AXObserverAddNotification(observer, focused, kAXSelectedTextChangedNotification as CFString, context)
+        }
+
+        CFRunLoopAddSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(observer), .defaultMode)
+        axObserver = observer
+        observedPID = pid
+    }
+
+    private func removeCurrentAXObserver() {
+        guard let observer = axObserver else { return }
+        CFRunLoopRemoveSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(observer), .defaultMode)
+        axObserver = nil
+        observedPID = 0
+    }
+
+    /// Called from the file-scope AX callback when any registered notification fires.
+    fileprivate func handleAXNotification(_ notification: String) {
+        if notification == kAXFocusedUIElementChangedNotification as String {
+            // Subscribe to text-change notifications on the newly focused element
+            if let observer = axObserver, let focused = AccessibilityHelper.focusedElement() {
+                let context = Unmanaged.passUnretained(self).toOpaque()
+                AXObserverAddNotification(observer, focused, kAXSelectedTextChangedNotification as CFString, context)
+            }
+        }
+        checkViaAX()
+    }
+
+    // MARK: - Selection reading
 
     /// Fast path: read selected text via Accessibility API (works for native apps).
     private func checkViaAX() {
@@ -86,12 +168,10 @@ final class SelectionMonitor: @unchecked Sendable {
         guard (NSEvent.pressedMouseButtons & 1) == 0 else { return }
 
         guard let text = selectionEmissionState.textToEmit(from: AccessibilityHelper.selectedTextViaAX()) else { return }
-
         emit(text, bounds: AccessibilityHelper.selectedTextBoundsOrMouse())
     }
 
-    /// Slow path: simulate Cmd+C for browsers that don't expose AXSelectedText (Safari, Chrome on macOS 26+).
-    /// Only called once per mouse-up, not at polling frequency.
+    /// Slow path: simulate Cmd+C for browsers that don't expose AXSelectedText.
     private func checkViaClipboard(mousePosition: CGPoint) {
         guard appState.appearAutomatically else { return }
 
@@ -116,5 +196,16 @@ final class SelectionMonitor: @unchecked Sendable {
             bounds: bounds,
             isEditable: AccessibilityHelper.isEditable()
         ))
+    }
+}
+
+// File-scope C callback — AXObserverCallback cannot capture context; self travels via UnsafeMutableRawPointer.
+// Safe: stop() removes this observer from the run loop before SelectionMonitor can be deallocated.
+private let axNotificationCallback: AXObserverCallback = { _, _, notification, context in
+    guard let context else { return }
+    let monitor = Unmanaged<SelectionMonitor>.fromOpaque(context).takeUnretainedValue()
+    let name = notification as String
+    Task { @MainActor in
+        monitor.handleAXNotification(name)
     }
 }
