@@ -13,6 +13,7 @@
 		382054652FDB402E006A9D23 /* PluginLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 382054642FDB402E006A9D23 /* PluginLoaderTests.swift */; };
 		382054672FDB404B006A9D23 /* PluginActionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 382054662FDB404B006A9D23 /* PluginActionTests.swift */; };
 		382054692FDB433A006A9D23 /* RunningState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 382054682FDB433A006A9D23 /* RunningState.swift */; };
+		3820546B2FDB467B006A9D23 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3820546A2FDB467B006A9D23 /* PrivacyInfo.xcprivacy */; };
 		3837A1FED05243C254360AF0 /* PluginDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE1BE40ED4BC8BF777CDFCC /* PluginDefinition.swift */; };
 		41895BD78CF3F1D0CF30E557 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 388B840CF0D52329CB958C3F /* Assets.xcassets */; };
 		42E18A5383B0353AEC8062E3 /* PluginLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 499B6470695435B301391173 /* PluginLoader.swift */; };
@@ -55,6 +56,7 @@
 		382054642FDB402E006A9D23 /* PluginLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginLoaderTests.swift; sourceTree = "<group>"; };
 		382054662FDB404B006A9D23 /* PluginActionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginActionTests.swift; sourceTree = "<group>"; };
 		382054682FDB433A006A9D23 /* RunningState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningState.swift; sourceTree = "<group>"; };
+		3820546A2FDB467B006A9D23 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = file; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		388B840CF0D52329CB958C3F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		499B6470695435B301391173 /* PluginLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginLoader.swift; sourceTree = "<group>"; };
 		4F79F7A1E6182EBB21B254B4 /* BuiltInActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuiltInActions.swift; sourceTree = "<group>"; };
@@ -149,6 +151,7 @@
 			isa = PBXGroup;
 			children = (
 				388B840CF0D52329CB958C3F /* Assets.xcassets */,
+				3820546A2FDB467B006A9D23 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -266,6 +269,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3820546B2FDB467B006A9D23 /* PrivacyInfo.xcprivacy in Resources */,
 				41895BD78CF3F1D0CF30E557 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -347,6 +351,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = E89Q3796E9;
+				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
 				SDKROOT = macosx;
@@ -445,6 +450,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = E89Q3796E9;
+				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
 				SDKROOT = macosx;

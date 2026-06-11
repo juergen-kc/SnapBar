@@ -20,6 +20,8 @@
 	<string>2</string>
 	<key>LSUIElement</key>
 	<true/>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.utilities</string>
 	<key>NSAccessibilityUsageDescription</key>
 	<string>SnapBar needs Accessibility access to detect text selection and read selected text in other applications.</string>
 </dict>
