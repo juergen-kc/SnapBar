@@ -44,7 +44,7 @@ final class ToolbarController {
         let fittingSize = hostingView.fittingSize
         panel.contentView = hostingView
         panel.setContentSize(fittingSize)
-        panel.visibleContentHeight = fittingSize.height - 30 // exclude tooltip padding
+        panel.visibleContentHeight = fittingSize.height - ToolbarView.tooltipPadding
 
         panel.setFrameOrigin(calculatePosition(
             selectionBounds: selection.bounds,
@@ -124,9 +124,9 @@ final class ToolbarController {
         // Convert AX coordinates (top-left origin) to AppKit screen coordinates (bottom-left origin)
         let selectionScreenY = screen.frame.origin.y + screen.frame.height - selectionBounds.origin.y
 
-        // The toolbarSize includes 30pt bottom padding for tooltip overflow.
+        // The toolbarSize includes bottom padding for tooltip overflow.
         // Subtract it so positioning is based on the visible toolbar height.
-        let tooltipPadding: CGFloat = 30
+        let tooltipPadding = ToolbarView.tooltipPadding
         let visibleHeight = toolbarSize.height - tooltipPadding
 
         var x = selectionBounds.origin.x + (selectionBounds.width - toolbarSize.width) / 2

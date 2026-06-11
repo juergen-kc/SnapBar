@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ToolbarSurfaceStyle: Equatable {
+struct ToolbarSurfaceStyle {
     let fallbackFillOpacity: Double
     let strokeOpacity: Double
     let shadowOpacity: Double
@@ -14,13 +14,6 @@ struct ToolbarSurfaceStyle: Equatable {
         shadowRadius: 16,
         shadowYOffset: 8
     )
-
-    var hasVisibleFallback: Bool {
-        fallbackFillOpacity > 0
-            && strokeOpacity > 0
-            && shadowOpacity > 0
-            && shadowRadius > 0
-    }
 }
 
 /// Represents either a single action or a group of actions in the toolbar.
@@ -71,9 +64,11 @@ struct ToolbarView: View {
 
     @Namespace private var toolbarNamespace
     @Environment(AppState.self) private var appState
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @State private var focusedIndex = 0
     @State private var expandedGroup: String?
 
+    static let tooltipPadding: CGFloat = 30
     private static let surfaceStyle = ToolbarSurfaceStyle.floatingToolbar
 
     init(actions: [any Action], selection: TextSelection, onDismiss: @escaping () -> Void, keyboardMode: Bool) {
@@ -101,22 +96,24 @@ struct ToolbarView: View {
             .background {
                 Capsule()
                     .fill(.regularMaterial)
-                Capsule()
-                    .fill(Color(nsColor: .controlBackgroundColor).opacity(Self.surfaceStyle.fallbackFillOpacity))
+                if reduceTransparency {
+                    Capsule()
+                        .fill(Color(nsColor: .controlBackgroundColor).opacity(Self.surfaceStyle.fallbackFillOpacity))
+                }
             }
             .overlay {
                 Capsule()
                     .strokeBorder(Color.primary.opacity(Self.surfaceStyle.strokeOpacity), lineWidth: 1)
             }
             .shadow(
-                color: .black.opacity(Self.surfaceStyle.shadowOpacity),
+                color: .black.opacity(reduceTransparency ? Self.surfaceStyle.shadowOpacity : 0),
                 radius: Self.surfaceStyle.shadowRadius,
                 y: Self.surfaceStyle.shadowYOffset
             )
             .glassEffect(.regular.interactive(), in: .capsule)
         }
         .fixedSize()
-        .padding(.bottom, 30) // Reserve space below for tooltip overlays
+        .padding(.bottom, Self.tooltipPadding)
         .onKeyPress(.leftArrow) {
             guard keyboardMode else { return .ignored }
             focusedIndex = max(0, focusedIndex - 1)

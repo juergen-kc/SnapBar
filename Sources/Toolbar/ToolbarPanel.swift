@@ -21,7 +21,7 @@ final class ToolbarPanel: NSPanel {
         isMovableByWindowBackground = false
         isOpaque = false
         backgroundColor = .clear
-        hasShadow = false  // Liquid Glass provides its own shadow/depth
+        hasShadow = false  // shadow is applied in ToolbarView, gated on reduceTransparency
         collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
         animationBehavior = .utilityWindow
 
