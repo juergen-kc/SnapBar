@@ -64,6 +64,7 @@ struct ToolbarView: View {
 
     @Namespace private var toolbarNamespace
     @Environment(AppState.self) private var appState
+    @Environment(RunningState.self) private var runningState
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @State private var focusedItemID: String?
     @State private var expandedGroup: String?
@@ -171,21 +172,31 @@ struct ToolbarView: View {
     }
 
     private func actionButton(for action: any Action) -> some View {
-        Button {
+        let isRunning = runningState.contains(action.id)
+        return Button {
+            guard !isRunning else { return }
             action.execute(with: selection)
             onDismiss()
         } label: {
             focusHighlight(isFocused(action.id)) {
-                Image(systemName: action.icon)
-                    .font(.system(size: appState.toolbarSize.iconSize, weight: .medium))
-                    .frame(
-                        width: appState.toolbarSize.buttonSize,
-                        height: appState.toolbarSize.buttonSize
-                    )
+                ZStack {
+                    Image(systemName: action.icon)
+                        .font(.system(size: appState.toolbarSize.iconSize, weight: .medium))
+                        .frame(
+                            width: appState.toolbarSize.buttonSize,
+                            height: appState.toolbarSize.buttonSize
+                        )
+                        .opacity(isRunning ? 0.25 : 1)
+                    if isRunning {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .scaleEffect(0.5)
+                    }
+                }
             }
         }
         .buttonStyle(.plain)
-        .glassTooltip(action.title)
+        .glassTooltip(isRunning ? "Running…" : action.title)
     }
 
     private func groupButton(name: String, icon: String, actions: [any Action]) -> some View {

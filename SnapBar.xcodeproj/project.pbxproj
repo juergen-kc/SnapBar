@@ -12,6 +12,7 @@
 		375522719CCF75FFD310FC10 /* SelectionBehaviorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5BCC48695B92F0AB589454 /* SelectionBehaviorTests.swift */; };
 		382054652FDB402E006A9D23 /* PluginLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 382054642FDB402E006A9D23 /* PluginLoaderTests.swift */; };
 		382054672FDB404B006A9D23 /* PluginActionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 382054662FDB404B006A9D23 /* PluginActionTests.swift */; };
+		382054692FDB433A006A9D23 /* RunningState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 382054682FDB433A006A9D23 /* RunningState.swift */; };
 		3837A1FED05243C254360AF0 /* PluginDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE1BE40ED4BC8BF777CDFCC /* PluginDefinition.swift */; };
 		41895BD78CF3F1D0CF30E557 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 388B840CF0D52329CB958C3F /* Assets.xcassets */; };
 		42E18A5383B0353AEC8062E3 /* PluginLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 499B6470695435B301391173 /* PluginLoader.swift */; };
@@ -53,6 +54,7 @@
 		33F6BB8280D8B089881FDA36 /* ToolbarSurfaceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarSurfaceTests.swift; sourceTree = "<group>"; };
 		382054642FDB402E006A9D23 /* PluginLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginLoaderTests.swift; sourceTree = "<group>"; };
 		382054662FDB404B006A9D23 /* PluginActionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginActionTests.swift; sourceTree = "<group>"; };
+		382054682FDB433A006A9D23 /* RunningState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningState.swift; sourceTree = "<group>"; };
 		388B840CF0D52329CB958C3F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		499B6470695435B301391173 /* PluginLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginLoader.swift; sourceTree = "<group>"; };
 		4F79F7A1E6182EBB21B254B4 /* BuiltInActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuiltInActions.swift; sourceTree = "<group>"; };
@@ -92,6 +94,7 @@
 				C8D0723BB0545D5BF75E0C1C /* Logger.swift */,
 				049D29F718F5D24B28B037A9 /* MenuBarView.swift */,
 				C791146370E2DA4B1B870DDF /* SnapBarApp.swift */,
+				382054682FDB433A006A9D23 /* RunningState.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -282,6 +285,7 @@
 				E13BD8B338F447348074D5F0 /* Logger.swift in Sources */,
 				A8D6817EB19CB60E6B9892BB /* MenuBarView.swift in Sources */,
 				B34283F300CB51E59E1ECB99 /* PluginAction.swift in Sources */,
+				382054692FDB433A006A9D23 /* RunningState.swift in Sources */,
 				3837A1FED05243C254360AF0 /* PluginDefinition.swift in Sources */,
 				4580BCF5C6D50B6D7CBB5A0B /* PluginDirectoryWatcher.swift in Sources */,
 				42E18A5383B0353AEC8062E3 /* PluginLoader.swift in Sources */,

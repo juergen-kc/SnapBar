@@ -39,6 +39,7 @@ final class ToolbarController {
             keyboardMode: keyboardMode
         )
         .environment(appState)
+        .environment(RunningState.shared)
 
         let hostingView = NSHostingView(rootView: toolbarView)
         let fittingSize = hostingView.fittingSize

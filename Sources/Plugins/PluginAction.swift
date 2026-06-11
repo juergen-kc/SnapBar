@@ -81,11 +81,15 @@ struct PluginAction: Action {
     private func executeScript(with selection: TextSelection) {
         guard let script = definition.script else { return }
         let interpreter = definition.scriptInterpreter ?? "/bin/bash"
+        let actionID = id
 
         var env = ProcessInfo.processInfo.environment
         env["SNAPBAR_TEXT"] = selection.text
 
         Task.detached {
+            await MainActor.run { RunningState.shared.begin(actionID) }
+            defer { Task { @MainActor in RunningState.shared.end(actionID) } }
+
             if let output = runProcess(
                 executable: interpreter,
                 arguments: interpreter.contains("osascript") ? ["-e", script] : ["-c", script],
@@ -98,7 +102,12 @@ struct PluginAction: Action {
 
     private func executeShortcut(with selection: TextSelection) {
         guard let name = definition.shortcutName else { return }
+        let actionID = id
+
         Task.detached {
+            await MainActor.run { RunningState.shared.begin(actionID) }
+            defer { Task { @MainActor in RunningState.shared.end(actionID) } }
+
             runProcess(
                 executable: "/usr/bin/shortcuts",
                 arguments: ["run", name, "--input-path", "-"],
@@ -151,7 +160,10 @@ struct PluginAction: Action {
         pasteReplacingSelection(result, isEditable: selection.isEditable)
     }
 
+    private static let scriptTimeout: TimeInterval = 10
+
     /// Run a subprocess with optional stdin input and output capture.
+    /// Terminates the process if it exceeds `scriptTimeout` seconds.
     @discardableResult
     private func runProcess(
         executable: String, arguments: [String],
@@ -169,10 +181,17 @@ struct PluginAction: Action {
         let outputPipe = captureOutput ? Pipe() : nil
         process.standardOutput = outputPipe
 
+        let semaphore = DispatchSemaphore(value: 0)
+        process.terminationHandler = { _ in semaphore.signal() }
+
         try? process.run()
         inputPipe.fileHandleForWriting.write(Data(input.utf8))
         inputPipe.fileHandleForWriting.closeFile()
-        process.waitUntilExit()
+
+        if semaphore.wait(timeout: .now() + Self.scriptTimeout) == .timedOut {
+            process.terminate()
+            DebugLog.log("Plugin '\(definition.name)' timed out after \(Int(Self.scriptTimeout))s")
+        }
 
         guard let outputPipe else { return nil }
         return String(data: outputPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)?
